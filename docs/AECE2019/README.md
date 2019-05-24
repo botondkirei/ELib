@@ -1,0 +1,1 @@
+The paper is open access. The link: http://www.aece.ro/abstractplus.php?year=2019&number=1&article=2
