@@ -10,13 +10,13 @@
 --              - outpus :  mp - result of multiplication
 --                          done- indicate the final of multiplication
 --                          Vcc- supply voltage 
---                          consumption :  port to monitor dynamic and static consumption
+--                          estimation :  port to monitor dynamic and static estimation
 --                          	   for power estimation only 
 -- Dependencies: PECore.vhd, PeGates.vhd, Nbits.vhd, auto.vhd, reg_dep.vhd
 ----------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
+--use ieee.std_logic_unsigned.all;
 
 use work.PECore.all;
 use work.PEGates.all;
@@ -34,7 +34,7 @@ entity multiplicator is
 	      mp : out std_logic_vector (2*width-1 downto 0);--8/16/32/64
 	      done : out std_logic;
 	      Vcc : in real ; -- supply voltage
-          consumption : out consumption_type := cons_zero
+          estimation : out estimation_type := est_zero
           );
 end entity;
 
@@ -43,19 +43,61 @@ architecture behavioral of multiplicator is
 signal my, sum, lo, hi : std_logic_vector (width-1 downto 0);--4/8/16/32
 signal  a1 : std_logic;
 signal loadHI, loadLO, loadM, shft, rsthi : std_logic;
-signal cons : consumption_type_array(1 to 4);
+signal estim : estimation_type_array(1 to 5);
+signal rst : std_logic;
+-- signal loadLO_shft, loadHi_shft : std_logic;
 
 begin
-
+rst <=  not rn;
 a1 <= lo(0);
+
+-- or2_gate1 : or2_gate port map 
+	-- ( -- pragma synthesis_off
+     -- Vcc => Vcc, --supply voltage
+     -- estimation => estim(6),       
+     -- -- pragma synthesis_on
+	 -- a => loadLo, b=> shft, y => loadLO_shft);
+-- or2_gate2 : or2_gate port map 
+	-- ( -- pragma synthesis_off
+     -- Vcc => Vcc, --supply voltage
+     -- estimation => estim(7),       
+     -- -- pragma synthesis_on
+	 -- a => loadHi, b=> shft, y => loadHi_shft);
 --b1 <= '1' when out1=31 else '0';
-uut : auto_Structural generic map (width=> width, delay => delay, logic_family => ssxlib ) port map (clk => clk, rn => rn, a => a1, loadHI => loadHI, loadLO => loadLO, loadM => loadM, shft => shft, rsthi => rsthi, done => done, Vcc => Vcc, consumption => cons(1));
-M_i : reg_bidirectional generic map (width => width, delay => delay, logic_family => ssxlib) port map (Input => ma, CK => clk, Clear => rn, S1 => '0', S0 => '0', SR => '0', SL => '0', A => my, Vcc => Vcc, consumption => cons(2));
-LO_i: reg_bidirectional generic map (width => width, delay => delay, logic_family => ssxlib) port map (Input => mb, CK => clk, Clear => rn, S1 => '1', S0 => '0', SR => '0', SL => '0', A => lo, Vcc => Vcc, consumption => cons(3));
-HI_i: reg_bidirectional generic map (width => width, delay => delay, logic_family => ssxlib) port map (Input => sum, CK => clk, Clear => rn, S1 => '0', S0 => '1', SR => '0', SL => '0', A => hi, Vcc => Vcc, consumption => cons(4));
+uut : auto_Structural generic map (width=> width, delay => delay, logic_family => logic_family ) port map 	
+    ( -- pragma synthesis_off
+     Vcc => Vcc, --supply voltage
+     estimation => estim(1),       
+     -- pragma synthesis_on
+    clk => clk, rn => rst, a => a1, loadHI => loadHI, loadLO => loadLO, loadM => loadM, shft => shft, rsthi => rsthi, done => done);
+M_i : reg_bidirectional generic map (width => width, delay => delay, logic_family => logic_family) port map  	
+    ( -- pragma synthesis_off
+     Vcc => Vcc, --supply voltage
+     estimation => estim(2),       
+     -- pragma synthesis_on
+    D => ma, CK => clk, Clear => rn, S1 => loadM, S0 => loadM, SR => '0', SL => '0', Q => my);
+LO_i: reg_bidirectional generic map (width => width, delay => delay, logic_family => logic_family) port map  	
+    ( -- pragma synthesis_off
+     Vcc => Vcc, --supply voltage
+     estimation => estim(3),       
+     -- pragma synthesis_on
+    D => mb, CK => clk, Clear => rn, S1 => '1', S0 => loadLo, SR => '0', SL => '0', Q => lo);
+HI_i: reg_bidirectional generic map (width => width, delay => delay, logic_family => logic_family) port map  	
+    ( -- pragma synthesis_off
+     Vcc => Vcc, --supply voltage
+     estimation => estim(4),       
+     -- pragma synthesis_on
+    D => sum, CK => clk, Clear => rn, S1 => '1', S0 => loadHi, SR => '0', SL => '0', Q => hi);
 
 mp <= hi&lo;
-sum <= my+hi;
+--sum <= my+hi;
+adder: adder_Nbits generic map (width => width) port map
+	( -- pragma synthesis_off
+     Vcc => Vcc, --supply voltage
+     estimation => estim(5),       
+     -- pragma synthesis_on
+    A => my, B => hi, Cin => '0', Cout => open,	S => sum );
 
-consum: sum_up generic map (N=>4) port map (cons=>cons, consumption=>consumption);
+consum: sum_up generic map (N=>5) port map (estim=>estim, estimation=>estimation);
+
 end architecture;

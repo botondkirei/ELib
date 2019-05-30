@@ -309,23 +309,23 @@ use work.PECore.all;
 
 entity power_estimator is
 	generic ( time_window : time := 1 ns); --capacities charges and dischareged
-	port ( estimation : in  estimation_type;
+	port ( estimation : in estimation_type := est_zero;
 	       power : out real := 0.0);
 end entity;
 
-architecture monitoring of power_estimator is
-	signal est_delayed : estimation_type := est_zero;
-	signal time_window_real : real;
-begin
+-- architecture monitoring of power_estimator is
+	-- signal est_delayed : estimation_type := est_zero;
+	-- signal time_window_real : real;
+-- begin
 
-	-- convert energy to power 
-	est_delayed <=  transport estimation after time_window;
-	time_window_real <= real(time_window/1 ns) * 1.0e-9;
-	power <=  0.0 when (estimation.power.dynamic - est_delayed.power.dynamic) = -1.0e+308 else (estimation.power.dynamic - est_delayed.power.dynamic) / time_window_real + estimation.power.static;
-end architecture;
+	-- -- convert energy to power 
+	-- est_delayed <=  transport estimation after time_window;
+	-- time_window_real <= real(time_window/1 ns) * 1.0e-9;
+	-- power <=  0.0 when (estimation.power.dynamic - est_delayed.power.dynamic) = -1.0e+308 else (estimation.power.dynamic - est_delayed.power.dynamic) / time_window_real + estimation.power.static;
+-- end architecture;
 
-architecture periodc of power_estimator is
-	signal est_delayed : estimation_type := est_zero;
+architecture periodic of power_estimator is
+	--signal est_delayed : estimation_type := est_zero;
 	constant time_window_real : real := real(time_window/1 ns) * 1.0e-9;
 	signal trigger : std_logic := '0';
 begin
@@ -336,13 +336,17 @@ begin
 		wait for time_window /2;
 	end process;
 	-- convert energy to power 
-	process (trigger) begin
-		 if (estimation.power.dynamic - estimation.power.dynamic) = -1.0e+308 then
+	process (trigger) 
+		variable est_delayed : estimation_type := est_zero;
+	begin
+		est_delayed := estimation;
+		 --if (estimation.power.dynamic - estimation.power.dynamic) = -1.0e+308 then
+		if (estimation.power.dynamic - est_delayed.power.dynamic) = -1.0e+308 then
 		 	power <=  0.0;
 		else 
 			power <= (estimation.power.dynamic - est_delayed.power.dynamic) / time_window_real + estimation.power.static;
 		end if;
-		est_delayed <= estimation;
+		
 	end process;
 end architecture;
 ----------------------------------------------------------------------------

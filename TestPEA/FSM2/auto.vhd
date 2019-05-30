@@ -18,7 +18,7 @@ port(clk,rn : in std_logic;
 	 loadLO : inout std_logic;
 	 loadHI, loadM, shft, rsthi, done : out std_logic;
 	 Vcc : in real ; -- supply voltage
-     consumption : out consumption_type := cons_zero);
+     estimation : out estimation_type := est_zero);
 end component;
 
 
@@ -33,7 +33,7 @@ port(clk,rn : in std_logic;
 	 loadLO : inout std_logic;
 	 loadHI, loadM, shft, rsthi, done : out std_logic;
 	 Vcc : in real ; -- supply voltage
-     consumption : out consumption_type := cons_zero);
+     estimation : out estimation_type := est_zero);
 end component;
 
 end package;
@@ -58,7 +58,7 @@ port(clk,rn : in std_logic;
 	 loadLO : inout std_logic;
 	 loadHI, loadM, shft, rsthi, done : out std_logic;
 	 Vcc : in real ; -- supply voltage
-     consumption : out consumption_type := cons_zero);
+     estimation : out estimation_type := est_zero);
 end entity;
 
 architecture Behavioral of auto_behavioral is
@@ -133,7 +133,7 @@ shft <= '1' when current_state = deplasare else '0';
 rsthi <='0' when current_state = gata else '1';
 done <='1' when current_state = gata else '0';
 
-consumption <= cons_zero;
+estimation <= est_zero;
 
 end architecture;
 
@@ -158,61 +158,61 @@ port(clk,rn : in std_logic;
 	 loadLO : inout std_logic;
 	 loadHI, loadM, shft, rsthi, done : out std_logic;
 	 Vcc : in real ; -- supply voltage
-     consumption : out consumption_type := cons_zero);
+     estimation : out estimation_type := est_zero);
 end entity;
 architecture Structural of auto_structural is
 
 signal Q2, Q1, Q0, Q2n, Q1n, Q0n, an, rnn : std_logic ;
 signal D2, D1, D0 : STD_LOGIC; 
 signal eq, loadLO0, done0: std_logic;
-signal cons : consumption_type_array(1 to 23) := (others => cons_zero);
+signal estim : estimation_type_array(1 to 23) := (others => est_zero);
 signal net : std_logic_vector(1 to 6);
 signal cnt : std_logic_vector(width-1 downto 0);
 signal cnt_en, en,enn : std_logic;
 
 begin
-compare_cnt_width1: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '0' , y(1) => '0',  y(2) => '0' ,EQI => '1', EQO => cnt_en, Vcc => Vcc, consumption => cons(1));
-compare_cnt_width2: comparator generic map (width => width, delay => delay, logic_family => logic_family ) port map ( x => cnt,  y => std_logic_vector(to_unsigned(width,width)), EQI => '1', EQO => eq, Vcc => Vcc, consumption => cons(2));
-compare_cnt_width3: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '1' , y(1) => '1',  y(2) => '0' ,EQI => '1', EQO => en, Vcc => Vcc, consumption => cons(3));
+compare_cnt_width1: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '0' , y(1) => '0',  y(2) => '0' ,EQI => '1', EQO => cnt_en, Vcc => Vcc, estimation => estim(1));
+compare_cnt_width2: comparator generic map (width => width, delay => delay, logic_family => logic_family ) port map ( x => cnt,  y => std_logic_vector(to_unsigned(width,width)), EQI => '1', EQO => eq, Vcc => Vcc, estimation => estim(2));
+compare_cnt_width3: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '1' , y(1) => '1',  y(2) => '0' ,EQI => '1', EQO => en, Vcc => Vcc, estimation => estim(3));
 --counter
-inv6: inv_gate generic map (delay => 0 ns, logic_family => logic_family ) port map (a => en, y => enn, Vcc => Vcc, consumption => cons(4));
-counter : counter_we_Nbits generic  map (width => width, delay => delay, logic_family => logic_family ) port map ( CLK => clk, Rn => enn ,En => cnt_en, Q => cnt, Vcc => Vcc, consumption => cons(5));
+inv6: inv_gate generic map (delay => 0 ns, logic_family => logic_family ) port map (a => en, y => enn, Vcc => Vcc, estimation => estim(4));
+counter : counter_we_Nbits generic  map (width => width, delay => delay, logic_family => logic_family ) port map ( CLK => clk, Rn => enn ,En => cnt_en, Q => cnt, Vcc => Vcc, estimation => estim(5));
 --inversoarele
-inv4: inv_gate generic map (delay => 0 ns, logic_family => logic_family ) port map (a => a, y => an, Vcc => Vcc, consumption => cons(6));
-inv5: inv_gate generic map (delay => 0 ns, logic_family => logic_family ) port map (a => rn, y => rnn, Vcc => Vcc, consumption => cons(7));
+inv4: inv_gate generic map (delay => 0 ns, logic_family => logic_family ) port map (a => a, y => an, Vcc => Vcc, estimation => estim(6));
+inv5: inv_gate generic map (delay => 0 ns, logic_family => logic_family ) port map (a => rn, y => rnn, Vcc => Vcc, estimation => estim(7));
 
 --D2
-and5_gate1: and5_gate generic map(delay => 0 ns, logic_family => logic_family) port map(a => Q2n, b => Q1n, c => Q0n, d => an ,e => rn , y => D2, Vcc => Vcc, consumption => cons(8));
+and5_gate1: and5_gate generic map(delay => 0 ns, logic_family => logic_family) port map(a => Q2n, b => Q1n, c => Q0n, d => an ,e => rn , y => D2, Vcc => Vcc, estimation => estim(8));
 --D1
-and_gate2: and4_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2n, b => Q1, c => Q0n, d => eq, y => net(1), Vcc => Vcc, consumption => cons(9));
-and_gate3: and3_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2 , b => Q1n , c => Q0n, y => net(2), Vcc => Vcc, consumption => cons(10));
-and_gate4: and3_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2n , b => Q1n , c => Q0, y => net(3), Vcc => Vcc, consumption => cons(11));
-or_gate1: or4_gate generic map (delay => delay, logic_family => logic_family) port map (a => net(1), b => net(2), c => net(3), d => rnn, y => D1, Vcc => Vcc, consumption => cons(12));
+and_gate2: and4_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2n, b => Q1, c => Q0n, d => eq, y => net(1), Vcc => Vcc, estimation => estim(9));
+and_gate3: and3_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2 , b => Q1n , c => Q0n, y => net(2), Vcc => Vcc, estimation => estim(10));
+and_gate4: and3_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2n , b => Q1n , c => Q0, y => net(3), Vcc => Vcc, estimation => estim(11));
+or_gate1: or4_gate generic map (delay => delay, logic_family => logic_family) port map (a => net(1), b => net(2), c => net(3), d => rnn, y => D1, Vcc => Vcc, estimation => estim(12));
 --D0
-and_gate5: and4_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2n, b => Q1, c => Q0n, d => eq, y => net(4), Vcc => Vcc, consumption => cons(13));
-and_gate6: and4_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2n, b => Q1n, c => Q0n, d => a, y => net(5), Vcc => Vcc, consumption => cons(14));
-or_gate2: or3_gate generic map (delay => delay, logic_family => logic_family) port map (a => net(4), b => net(5), c => rnn, y => D0, Vcc => Vcc, consumption => cons(15));
+and_gate5: and4_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2n, b => Q1, c => Q0n, d => eq, y => net(4), Vcc => Vcc, estimation => estim(13));
+and_gate6: and4_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2n, b => Q1n, c => Q0n, d => a, y => net(5), Vcc => Vcc, estimation => estim(14));
+or_gate2: or3_gate generic map (delay => delay, logic_family => logic_family) port map (a => net(4), b => net(5), c => rnn, y => D0, Vcc => Vcc, estimation => estim(15));
 
 --bistabilele
-dff2: dff_Nbits generic map( active_edge => true, delay => delay, logic_family => logic_family ) port map ( D => D2, Ck => clk, Rn => '1', Q => Q2, Qn => Q2n, Vcc => Vcc, consumption => cons(16));
-dff1: dff_Nbits generic map( active_edge => true, delay => delay, logic_family => logic_family ) port map ( D => D1, Ck => clk, Rn => '1', Q => Q1, Qn => Q1n, Vcc => Vcc, consumption => cons(17));
-dff0: dff_Nbits generic map( active_edge => true, delay => delay, logic_family => logic_family ) port map ( D => D0, Ck => clk, Rn => '1', Q => Q0, Qn => Q0n, Vcc => Vcc, consumption => cons(18));
+dff2: dff_Nbits generic map( active_edge => true, delay => delay, logic_family => logic_family ) port map ( D => D2, Ck => clk, Rn => '1', Q => Q2, Qn => Q2n, Vcc => Vcc, estimation => estim(16));
+dff1: dff_Nbits generic map( active_edge => true, delay => delay, logic_family => logic_family ) port map ( D => D1, Ck => clk, Rn => '1', Q => Q1, Qn => Q1n, Vcc => Vcc, estimation => estim(17));
+dff0: dff_Nbits generic map( active_edge => true, delay => delay, logic_family => logic_family ) port map ( D => D0, Ck => clk, Rn => '1', Q => Q0, Qn => Q0n, Vcc => Vcc, estimation => estim(18));
  
 --loadHI
-compare1: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '1' , y(1) => '0',  y(2) => '0' , EQI => '1', EQO => loadHI, Vcc => Vcc, consumption => cons(19));
+compare1: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '1' , y(1) => '0',  y(2) => '0' , EQI => '1', EQO => loadHI, Vcc => Vcc, estimation => estim(19));
 --loadLO0                                                                                                                              
-compare2: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '1' , y(1) => '1',  y(2) => '0' , EQI => '1', EQO => loadLO0, Vcc => Vcc, consumption => cons(20));
+compare2: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '1' , y(1) => '1',  y(2) => '0' , EQI => '1', EQO => loadLO0, Vcc => Vcc, estimation => estim(20));
 --shft                                                                                                                                  
-compare3: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '0' , y(1) => '1',  y(2) => '0' , EQI => '1', EQO => shft, Vcc => Vcc, consumption => cons(21));
+compare3: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '0' , y(1) => '1',  y(2) => '0' , EQI => '1', EQO => shft, Vcc => Vcc, estimation => estim(21));
 --done0                                                                                                                                 
-compare4: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '1' , y(1) => '1',  y(2) => '0' , EQI => '1', EQO => done0, Vcc => Vcc, consumption => cons(22));
+compare4: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '1' , y(1) => '1',  y(2) => '0' , EQI => '1', EQO => done0, Vcc => Vcc, estimation => estim(22));
 --rsthi
-inv7 : inv_gate generic map (delay => 0 ns, logic_family => logic_family ) port map (a => done0, y => rsthi, Vcc => Vcc, consumption => cons(23));
+inv7 : inv_gate generic map (delay => 0 ns, logic_family => logic_family ) port map (a => done0, y => rsthi, Vcc => Vcc, estimation => estim(23));
 
 loadLO <= loadLO0;
 loadM <= loadLO0;
 done <= done0;
 
-sum_up_i : sum_up generic map (N => 23) port map (cons => cons, consumption => consumption);
+sum_up_i : sum_up generic map (N => 23) port map (estim => estim, estimation => estimation);
 
 end Structural;

@@ -409,12 +409,12 @@ package Nbits is
                Vcc : in real ; --supply voltage
                estimation : out estimation_type := est_zero;
                -- pragma synthesis_on
-               Input : in STD_LOGIC_VECTOR (width-1 downto 0);
+               D : in STD_LOGIC_VECTOR (width-1 downto 0);
                Clear : in STD_LOGIC;
                CK : in STD_LOGIC;
                S1,S0 : in STD_LOGIC;
                SR, SL : in STD_LOGIC;
-               A : out STD_LOGIC_VECTOR (width-1 downto 0)
+               Q : out STD_LOGIC_VECTOR (width-1 downto 0)
                );
     end component;
 -----------------------------------------------------------------------------------------
@@ -1480,7 +1480,7 @@ end Structural;
 --              - outputs : Y-std_logic
 --              			estimation :  port to monitor power/area estimation
 --                          	   for power estimation only 
--- Dependencies: PECore.vhd, PeGates.vhd
+-- Dependencies: PECore.vhd, PeGates.vhd, Nbits.vhd
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -1568,7 +1568,8 @@ end Structural;
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use ieee.std_logic_unsigned.all;
+--use ieee.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
 
 library work;
 use work.PECore.all;
@@ -1602,16 +1603,24 @@ begin
 	bb <= B;
 	aa <= A;
 	functionare: process(ck,cl)
-				 begin
-				 if cl = '0' then
-					   counter <= "0000";
-				 elsif rising_edge(ck) then
+		variable n : integer range 0 to 15 :=0;
+		variable concat : std_logic_vector(3 downto 0);
+	begin
+		if cl = '0' then
+			n := 0;
+		elsif rising_edge(ck) then
 				 if (ld = '0') then
-					   counter <= dd & cc & bb & aa;
+					   concat := (dd & cc & bb & aa);
+					   n := to_integer(unsigned(concat));
 				 elsif ( en = '1') then 
-					   counter <= counter + 1;
-		   end if;
-	   end if;
+					if n = 15 then
+						n:= 0;
+					else
+						n:=n+1;
+					end if;
+				end if;
+		   counter <= std_logic_vector(to_unsigned(n,counter'length));		
+	    end if;
 	end process;
 
 	qdd <= counter(3) after delay;
@@ -1634,6 +1643,7 @@ end Behavioral;
 
 architecture Structural of num74163 is
 -- implementation follows schematic in https://assets.nexperia.com/documents/data-sheet/74HC_HCT163.pdf
+-- this description may be obsolete, as the power consumption is estimated based on Cpd, power dissipation capacitance, found in the datasheet
 	signal CPn , MR, PE : std_logic;
 	signal DFF0Qn, DFF1Qn, DFF2Qn, DFF3Qn : std_logic;
 	signal DFF0Q, DFF1Q, DFF2Q, DFF3Q : std_logic;
@@ -2893,16 +2903,16 @@ end Behavioral;
 
 
 ----------------------------------------------------------------------------------
--- Descriptioestimationiversal shift register with activity monitoring and Clear
+-- Description : universal shift register with activity monitoring and Clear
 --              - parameters :  delay - simulated delay time of an elementary gate
 --                          	width - the length of the words
 --								logic_family - the logic family of the tristate buffer
 --								Cload - load capacitance
---              - inputs :  Input--the input word 
+--              - inputs :  D --the input word 
 --                          Clear--the signal for reset
 --                          CK-- clock signal
 --                          S0,S1--conditioning signals (S0='0', S1='0' - no change; S0='0', S1='1' - shift right; S0='1', S1='0' - shift left; S0='1', S1='1' - parallel load)
---              - outpus :  A - the output word
+--              - outpus :  Q - the output word
 --                          Vcc  -- supply voltage
 --                          estimation :  port to monitor power/area estimation
 --									for power estimation only 
@@ -2923,48 +2933,51 @@ entity reg_bidirectional is
             Cload: real := 5.0 ; -- capacitive load
             Area: real := 0.0 --parameter area 
              );
-    Port ( Input : in STD_LOGIC_VECTOR (width-1 downto 0);
+    Port ( 
+		   --pragma synthesis_off
+		   Vcc : in real ; -- supply voltage
+           estimation : out estimation_type := est_zero;
+		   --pragma synthesis_on
+		   D : in STD_LOGIC_VECTOR (width-1 downto 0);
            Clear : in STD_LOGIC;
            CK : in STD_LOGIC;
            S1,S0 : in STD_LOGIC;
            SR, SL : IN STD_LOGIC;
-           A : out STD_LOGIC_VECTOR (width-1 downto 0);
-           Vcc : in real ; -- supply voltage
-           estimation : out estimation_type := est_zero
+           Q : out STD_LOGIC_VECTOR (width-1 downto 0)
            );
 end entity;
 
 architecture Behavioral of reg_bidirectional is
 
 
-signal outmux: STD_LOGIC_VECTOR (width-1 downto 0);
+signal outmux: STD_LOGIC_VECTOR (width downto 1);
 signal outdff: STD_LOGIC_VECTOR (width+1 downto 0);
 signal estim : estimation_type_array(1 to 2*width);
 
 begin
 
-OUTDFF(0)<=SL;
-gen_cells:  for i in  width-1 downto 0 generate
-        gen_dff: dff_Nbits generic map (delay => 0 ns,active_edge => TRUE, logic_family => logic_family)
-         port map (
-            --pragma synthesis_off
-            Vcc => Vcc, estimation => estim(i + 1),
-            --pragma synthesis_on
-            D => outmux(i) , Ck => CK, Rn => Clear, Q => outdff(i), Qn => open);
-        gen_mux: mux4_1 generic map( delay => 0 ns, logic_family => logic_family ) 
-            port map(
-                 --pragma synthesis_off
-                 Vcc => Vcc,  estimation => estim(i + width + 1),
-                 --pragma synthesis_on
-                  I(3) => Input(i), I(2) => outdff(i+2), I(1) => outdff(i), I(0) => outdff(i+1), A(1) => S1, A(0) => S0, Y => outmux(i));
-end generate gen_cells;
+	OUTDFF(0)<=SL;
+	gen_cells:  for i in  width downto 1 generate
+			gen_dff: dff_Nbits generic map (delay => 0 ns, active_edge => TRUE)
+			 port map (
+				--pragma synthesis_off
+				Vcc => Vcc, estimation => estim(i),
+				--pragma synthesis_on
+				D => outmux(i) , Ck => CK, Rn => Clear, Q => outdff(i), Qn => open);
+			gen_mux: mux4_1 generic map( delay => 0 ns ) 
+				port map(
+					 --pragma synthesis_off
+					 Vcc => Vcc,  estimation => estim(i + width),
+					 --pragma synthesis_on
+					  I(3) => D(i-1), I(2) => outdff(i-1), I(1) => outdff(i+1), I(0) => outdff(i), A(1) => S1, A(0) => S0, Y => outmux(i));
+	end generate gen_cells;
 
-OUTDFF(width+1)<= SR;        
+	OUTDFF(width+1)<= SR;        
 
-A <= outdff(width downto 1);
--- pragma synthesis_off
-sum_up_i : sum_up generic map (N =>2*width) port map (estim => estim, estimation => estimation);
--- pragma  synthesis_on
+	Q <= outdff(width downto 1);
+	-- pragma synthesis_off
+	sum_up_i : sum_up generic map (N =>2*width) port map (estim => estim, estimation => estimation);
+	-- pragma  synthesis_on
 
 end Behavioral;
 
