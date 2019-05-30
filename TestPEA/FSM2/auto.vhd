@@ -62,7 +62,7 @@ port(clk,rn : in std_logic;
 end entity;
 
 architecture Behavioral of auto_behavioral is
-type state_t is (start, adunare, deplasare, gata, nimic);
+type state_t is (start, adunare, deplasare, gata);
 signal current_state, next_state : state_t;
 signal cnt : integer :=0;
 
@@ -90,13 +90,10 @@ begin
 				if (a = '1') then
 					next_state <= adunare;
 				else
-					next_state <= nimic; --era deplasare
+					next_state <= deplasare; 
 				end if;
 
 			when adunare =>
-				next_state <= deplasare;
-
-			when nimic =>
 				next_state <= deplasare;
 
 			when deplasare =>
@@ -169,6 +166,10 @@ signal estim : estimation_type_array(1 to 23) := (others => est_zero);
 signal net : std_logic_vector(1 to 6);
 signal cnt : std_logic_vector(width-1 downto 0);
 signal cnt_en, en,enn : std_logic;
+--synthesis off
+type state is (load,add,shift,stop, error);
+signal disp_state : state;
+--synthesis on 
 
 begin
 compare_cnt_width1: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '0' , y(1) => '0',  y(2) => '0' ,EQI => '1', EQO => cnt_en, Vcc => Vcc, estimation => estim(1));
@@ -199,7 +200,8 @@ dff1: dff_Nbits generic map( active_edge => true, delay => delay, logic_family =
 dff0: dff_Nbits generic map( active_edge => true, delay => delay, logic_family => logic_family ) port map ( D => D0, Ck => clk, Rn => '1', Q => Q0, Qn => Q0n, Vcc => Vcc, estimation => estim(18));
  
 --loadHI
-compare1: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '1' , y(1) => '0',  y(2) => '0' , EQI => '1', EQO => loadHI, Vcc => Vcc, estimation => estim(19));
+--compare1: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '1' , y(1) => '0',  y(2) => '0' , EQI => '1', EQO => loadHI, Vcc => Vcc, estimation => estim(19));
+compare1: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '0' , y(1) => '0',  y(2) => '1' , EQI => '1', EQO => loadHI, Vcc => Vcc, estimation => estim(19));
 --loadLO0                                                                                                                              
 compare2: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '1' , y(1) => '1',  y(2) => '0' , EQI => '1', EQO => loadLO0, Vcc => Vcc, estimation => estim(20));
 --shft                                                                                                                                  
@@ -213,6 +215,20 @@ loadLO <= loadLO0;
 loadM <= loadLO0;
 done <= done0;
 
+--synthesis off
 sum_up_i : sum_up generic map (N => 23) port map (estim => estim, estimation => estimation);
+process (Q2, Q1, Q0)
+	variable curr_state : std_logic_vector(2 downto 0);
+begin
+	curr_state := Q2 & Q1 & Q0;
+	case curr_state is
+		when "000" => disp_state <= load;
+		when "001" => disp_state <= add;
+		when "010" => disp_state <= shift;
+		when "011" => disp_state <= stop;
+		when others => disp_state <= error;
+	end case;
+end process;
+--synthesis on 
 
 end Structural;

@@ -398,7 +398,7 @@ package Nbits is
     end component;
 
 ---------------------------------------------------------------------------------------
-    component reg_bidirectional is
+    component ureg is
         Generic ( width: integer :=4 ; 
                 delay : time := 1 ns;
                 logic_family : logic_family_t := default_logic_family; -- the logic family of the component
@@ -459,7 +459,7 @@ package body Nbits is
 end package body;
 
 ----------------------------------------------------------------------------------
--- Description: Full adder with activity monitoring 
+-- Description: Full adder with power and area estimation 
 --              - parameters :  delay - simulated delay time of an elementary gate
 --								logic_family - the logic family of the tristate buffer
 --								Cload - load capacitance
@@ -567,7 +567,7 @@ begin
 end Structural_with_nand_gates;
 
 ------------------------------------------------------
--- Description: N bit adder with activity monitoring 
+-- Description: N bit adder with power and area estimation 
 --              - parameters :  delay - simulated delay time of an elementary gate
 --                          	width - the width of the number to be added
 --								logic_family - the logic family of the tristate buffer
@@ -637,7 +637,7 @@ end Behavioral;
 --Company: Technical University of Cluj Napoca
 -- Engineer: Botond Sandor Kirei
 -- Project Name: NAPOSIP
--- Description: SR type latch with activity monitoring 
+-- Description: SR type latch with power and area estimation 
 --              - parameters :  delay - simulated delay time of an elementary gate
 --								logic_family - the logic family of the tristate buffer
 --								Cload - load capacitance
@@ -697,7 +697,7 @@ begin
     -- pragma synthesis_on
 end Strcutural;
 
----------------------------------------------------------------------------estimation Desestimation type latch with activity monitoring 
+---------------------------------------------------------------------------estimation Desestimation type latch with power and area estimation 
 --              - parameters :  delay - simulated delay time of an elementary gate
 --								logic_family - the logic family of the tristate buffer
 --								Cload - load capacitance
@@ -929,7 +929,7 @@ begin
 end Structural;
 ---------------------------------------------------------------------------------
 ------------------------------------------------------------
--- Description: T type flip flop with activity monitoring
+-- Description: T type flip flop with power and area estimation
 --				- behavioral and structural descriptions, use structural description for consumption estimation
 --              - parameters :  delay - simulated delay time of an elementary gate
 --								logic_family - the logic family of the tristate buffer
@@ -1162,7 +1162,7 @@ begin
 end Behavioral;
 
 ----------------------------------------------------------------------------------
--- Description: N bit register with activity monitoring and Reset
+-- Description: N bit register with power and area estimation and Reset
 --				behavioral and structural description, use structural for consumption estimation
 --              - parameters :  delay - simulated delay time of an elementary gate
 --                          	active_edge  - rising_edge of clock signal
@@ -1243,7 +1243,7 @@ begin
 end Structural;
 
 ----------------------------------------------------------------------------------
--- Description: Ripple counter with activity monitoring and Reset 
+-- Description: Ripple counter with power and area estimation and Reset 
 --              - parameters :  delay - simulated delay time of an elementary gate
 --                          	active_edge  - the active clock front of DFFs
 --                          	width - the number of DFF cells in the counter
@@ -1309,7 +1309,7 @@ begin
     --pragma synthesis_on
 end Structural;
 -----------------------------------------------------------------------
--- Description: Ripple counter with activity monitoring, Reset and Enable
+-- Description: Ripple counter with power and area estimation, Reset and Enable
 --              - parameters :  delay - simulated delay time of an elementary gate
 ---                          	active_edge  - the active clock front of DFFs
 --                          	width - the number of DFF cells in the counter
@@ -1551,7 +1551,7 @@ end Structural;
 
  
 -----------------------------------------------------------------------
--- Description: Counter 74163 with activity monitoring 
+-- Description: Counter 74163 with power and area estimation 
 --              - parameters :  delay - simulatedestimation of estimationry gate
 --                          	active_edge  - the active clock front of DFFs
 --                          	width - the number of DFF cells in the counter
@@ -2121,7 +2121,7 @@ begin
 end Structural2;
 
 ----------------------------------------------------------------------------------
--- Description: 8 to 3 bit priority encoder bits with activity monitoring (74148)
+-- Description: 8 to 3 bit priority encoder bits with power and area estimation (74148)
 --              - parameters :  logic_family - the logic family of the tristate buffer
 --								Cload - load capacitance
 --              - inputs: I(i), i=(0:7) ; EI(Enable Input) 
@@ -2387,7 +2387,7 @@ begin
 end Structural;
 
 ----------------------------------------------------------------------------------
--- Description:  Priority encoder on 32 bits with activity monitoring (74148 cascading)
+-- Description:  Priority encoder on 32 bits with power and area estimation (74148 cascading)
 --              - parameters :  logic_family - the logic family of the tristate buffer
 --								Cload - load capacitance
 --              - inputs: I(i), i=(0:31) ; EI(Enable Input) 
@@ -2488,7 +2488,7 @@ end Behavioral;
 
 
 -----------------------------------------------------------------------
--- Description:  Priority encoder on 64 bits with activity monitoring (74148)estimation       - parameters :  logic_family - the logic family of the tristate buffer
+-- Description:  Priority encoder on 64 bits with power and area estimation (74148)estimation       - parameters :  logic_family - the logic family of the tristate buffer
 --              - parameters :  logic_family - the logic family of the tristate buffer
 --								Cload - load capacitance
 --              - inputs: I(i), i=(63:0) ; EI(Enable Input) 
@@ -2718,7 +2718,7 @@ begin
   
 end architecture;
 ------------------------------------------------------------------------------------
----- Description: multiplicater on N bits with activity monitoring  
+---- Description: multiplicater on N bits with power and area estimation  
 ----              - parameters :  delay - simulated delay time of an elementary gate
 ----                          	width - the lenght of the numbers
 ----								logic_family - the logic family of the tristate buffer
@@ -2768,9 +2768,9 @@ end architecture;
 --a1 <= lo(0);
 ----b1 <= '1' when out1=31 else '0';
 --uut : auto_Structural generic map (width=> width, delay => delay, logic_family => ssxlib ) port map (clk => clk, rn => rn, a => a1, loadHI => loadHI, loadLO => loadLO, loadM => loadM, shft => shft, rsthi => rsthi, done => done, Vcc => Vcc, estimation => estim(1));
---M_i : reg_bidirectional generic map (width => width, delay => delay, logic_family => ssxlib) port map (Input => ma, CK => clk, Clear => rn, S1 => '0', S0 => '0', SR => '0', SL => '0', A => my, Vcc => Vcc, estimation => estim(2));
---LO_i: reg_bidirectional generic map (width => width, delay => delay, logic_family => ssxlib) port map (Input => mb, CK => clk, Clear => rn, S1 => '1', S0 => '0', SR => '0', SL => '0', A => lo, Vcc => Vcc, estimation => estim(3));
---HI_i: reg_bidirectional generic map (width => width, delay => delay, logic_family => ssxlib) port map (Input => sum, CK => clk, Clear => rn, S1 => '0', S0 => '1', SR => '0', SL => '0', A => hi, Vcc => Vcc, estimation => estim(4));
+--M_i : ureg generic map (width => width, delay => delay, logic_family => ssxlib) port map (Input => ma, CK => clk, Clear => rn, S1 => '0', S0 => '0', SR => '0', SL => '0', A => my, Vcc => Vcc, estimation => estim(2));
+--LO_i: ureg generic map (width => width, delay => delay, logic_family => ssxlib) port map (Input => mb, CK => clk, Clear => rn, S1 => '1', S0 => '0', SR => '0', SL => '0', A => lo, Vcc => Vcc, estimation => estim(3));
+--HI_i: ureg generic map (width => width, delay => delay, logic_family => ssxlib) port map (Input => sum, CK => clk, Clear => rn, S1 => '0', S0 => '1', SR => '0', SL => '0', A => hi, Vcc => Vcc, estimation => estim(4));
 
 --mp <= hi&lo;
 --sum <= my+hi;
@@ -2779,7 +2779,7 @@ end architecture;
 --end architecture;
     
 ----------------------------------------------------------------------------------
--- Description: basic cell of iterative comparator circuit with activity monitoring  
+-- Description: basic cell of iterative comparator circuit with power and area estimation  
 --              - parameters :  delay - simulated delay time of an elementary gate
 --								logic_family - the logic family of the tristate buffer
 --								Cload - load capacitance
@@ -2840,7 +2840,7 @@ end Behavioral;
 
 
 ----------------------------------------------------------------------------------
--- Description: iterative comparator circuit on N bits with activity monitoring  
+-- Description: iterative comparator circuit on N bits with power and area estimation  
 --              - parameters :  delay - simulated delay time of an elementary gate
 --								logic_family - the logic family of the tristate buffer
 --								Cload - load capacitance
@@ -2903,7 +2903,7 @@ end Behavioral;
 
 
 ----------------------------------------------------------------------------------
--- Description : universal shift register with activity monitoring and Clear
+-- Description : universal shift register with power and area estimation and Clear
 --              - parameters :  delay - simulated delay time of an elementary gate
 --                          	width - the length of the words
 --								logic_family - the logic family of the tristate buffer
@@ -2926,7 +2926,7 @@ use work.PECore.all;
 use work.PEGates.all; 
 use work.Nbits.all;
 
-entity reg_bidirectional is
+entity ureg is
     Generic ( width: integer :=4 ; 
             delay : time := 1 ns;
             logic_family : logic_family_t:= default_logic_family; -- the logic family of the component
@@ -2947,7 +2947,7 @@ entity reg_bidirectional is
            );
 end entity;
 
-architecture Behavioral of reg_bidirectional is
+architecture Behavioral of ureg is
 
 
 signal outmux: STD_LOGIC_VECTOR (width downto 1);

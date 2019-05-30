@@ -1,12 +1,12 @@
 ----------------------------------------------------------------------------------
--- Description: multiplicater on N bits with activity monitoring  
+-- Description: multiplier on N bits with power and area estimation  
 --              - parameters :  delay - simulated delay time of an elementary gate
 --                          	width - the lenght of the numbers
 --								logic_family - the logic family of the tristate buffer
 --								Cload - load capacitance
 --              - inputs :  ma, mb - the numbers for multiplication
 --                          clk- clock signal
---                          Rn - reset signal
+--                          Rn - reset signal also function as an enable signal
 --              - outpus :  mp - result of multiplication
 --                          done- indicate the final of multiplication
 --                          Vcc- supply voltage 
@@ -42,7 +42,7 @@ architecture behavioral of multiplicator is
 
 signal my, sum, lo, hi : std_logic_vector (width-1 downto 0);--4/8/16/32
 signal  a1 : std_logic;
-signal loadHI, loadLO, loadM, shft, rsthi : std_logic;
+signal loadHI, loadLO, loadM, shft, rsthi, carry : std_logic;
 signal estim : estimation_type_array(1 to 5);
 signal rst : std_logic;
 -- signal loadLO_shft, loadHi_shft : std_logic;
@@ -70,24 +70,24 @@ uut : auto_Structural generic map (width=> width, delay => delay, logic_family =
      estimation => estim(1),       
      -- pragma synthesis_on
     clk => clk, rn => rst, a => a1, loadHI => loadHI, loadLO => loadLO, loadM => loadM, shft => shft, rsthi => rsthi, done => done);
-M_i : reg_bidirectional generic map (width => width, delay => delay, logic_family => logic_family) port map  	
+M_i : ureg generic map (width => width, delay => delay, logic_family => logic_family) port map  	
     ( -- pragma synthesis_off
      Vcc => Vcc, --supply voltage
      estimation => estim(2),       
      -- pragma synthesis_on
-    D => ma, CK => clk, Clear => rn, S1 => loadM, S0 => loadM, SR => '0', SL => '0', Q => my);
-LO_i: reg_bidirectional generic map (width => width, delay => delay, logic_family => logic_family) port map  	
+    D => ma, CK => clk, Clear => '1', S1 => loadM, S0 => loadM, SR => '0', SL => '0', Q => my);
+LO_i: ureg generic map (width => width, delay => delay, logic_family => logic_family) port map  	
     ( -- pragma synthesis_off
      Vcc => Vcc, --supply voltage
      estimation => estim(3),       
      -- pragma synthesis_on
-    D => mb, CK => clk, Clear => rn, S1 => '1', S0 => loadLo, SR => '0', SL => '0', Q => lo);
-HI_i: reg_bidirectional generic map (width => width, delay => delay, logic_family => logic_family) port map  	
+    D => mb, CK => clk, Clear => '1', S0 => '1', S1 => loadLo, SL => hi(0), SR => '0', Q => lo);
+HI_i: ureg generic map (width => width, delay => delay, logic_family => logic_family) port map  	
     ( -- pragma synthesis_off
      Vcc => Vcc, --supply voltage
      estimation => estim(4),       
      -- pragma synthesis_on
-    D => sum, CK => clk, Clear => rn, S1 => '1', S0 => loadHi, SR => '0', SL => '0', Q => hi);
+    D => sum, CK => clk, Clear => rsthi, S0 => '1', S1 => loadHi, SL => Carry, SR => '0', Q => hi);
 
 mp <= hi&lo;
 --sum <= my+hi;
@@ -96,7 +96,7 @@ adder: adder_Nbits generic map (width => width) port map
      Vcc => Vcc, --supply voltage
      estimation => estim(5),       
      -- pragma synthesis_on
-    A => my, B => hi, Cin => '0', Cout => open,	S => sum );
+    A => my, B => hi, Cin => '0', Cout => Carry,	S => sum );
 
 consum: sum_up generic map (N=>5) port map (estim=>estim, estimation=>estimation);
 

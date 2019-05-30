@@ -1,0 +1,2 @@
+Liberty format is an industry standard to characterize a standard cell library. The description of the 
+format is [here](https://media.c3d2.de/mgoblin_media/media_entries/659/Liberty_User_Guides_and_Reference_Manual_Suite_Version_2017.06.pdf). The documentation of the open source standard cell library is [here](http://www.vlsitechnology.org/)

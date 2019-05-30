@@ -65,7 +65,7 @@ architecture test of test_reg_bidir is
 
 begin
 
-uut : reg_bidirectional generic map ( width =>  width )
+uut : ureg generic map ( width =>  width )
     port map (  
            --synthesis off
            Vcc => Vcc,
