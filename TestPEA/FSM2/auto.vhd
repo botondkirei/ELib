@@ -13,12 +13,15 @@ generic (width:integer:=32; --4/8/16/32
     logic_family : logic_family_t := default_logic_family; -- the logic family of the component
     Cload : real := 0.0 -- capacitive load
     );
-port(clk,rn : in std_logic;
+port(
+	 -- pragma synthesis_off
+	 Vcc : in real ; -- supply voltage
+     estimation : out estimation_type := est_zero;
+     -- pragma synthesis_on
+     clk,rn : in std_logic;
 	 a : in std_logic;
 	 loadLO : inout std_logic;
-	 loadHI, loadM, shft, rsthi, done : out std_logic;
-	 Vcc : in real ; -- supply voltage
-     estimation : out estimation_type := est_zero);
+	 loadHI, loadM, shft, rsthi, done : out std_logic);
 end component;
 
 
@@ -28,12 +31,15 @@ generic (width:integer:=32; --4/8/16/32
     logic_family : logic_family_t := default_logic_family; -- the logic family of the component
     Cload : real := 0.0 -- capacitive load
     );
-port(clk,rn : in std_logic;
+port(
+     -- pragma synthesis_off
+	 Vcc : in real ; -- supply voltage
+     estimation : out estimation_type := est_zero;
+     -- pragma synthesis_on
+     clk,rn : in std_logic;
 	 a : in std_logic;
 	 loadLO : inout std_logic;
-	 loadHI, loadM, shft, rsthi, done : out std_logic;
-	 Vcc : in real ; -- supply voltage
-     estimation : out estimation_type := est_zero);
+	 loadHI, loadM, shft, rsthi, done : out std_logic);
 end component;
 
 end package;
@@ -53,12 +59,15 @@ generic (
     logic_family : logic_family_t := default_logic_family; -- the logic family of the component
     Cload : real := 0.0 -- capacitive load
     );
-port(clk,rn : in std_logic;
+port(
+	 -- pragma synthesis_off
+	 Vcc : in real ; -- supply voltage
+     estimation : out estimation_type := est_zero;
+     -- pragma synthesis_on
+     clk,rn : in std_logic;
 	 a : in std_logic;
 	 loadLO : inout std_logic;
-	 loadHI, loadM, shft, rsthi, done : out std_logic;
-	 Vcc : in real ; -- supply voltage
-     estimation : out estimation_type := est_zero);
+	 loadHI, loadM, shft, rsthi, done : out std_logic);
 end entity;
 
 architecture Behavioral of auto_behavioral is
@@ -130,7 +139,11 @@ shft <= '1' when current_state = deplasare else '0';
 rsthi <='0' when current_state = gata else '1';
 done <='1' when current_state = gata else '0';
 
+-- pragma synthesis_off
 estimation <= est_zero;
+-- pragma synthesis_on
+
+
 
 end architecture;
 
@@ -150,85 +163,208 @@ generic (width:integer:=32; --4/8/16/32
     logic_family : logic_family_t := default_logic_family; -- the logic family of the component
     Cload : real := 0.0 -- capacitive load
     );
-port(clk,rn : in std_logic;
+port(
+	 -- pragma synthesis_off
+	 Vcc : in real ; -- supply voltage
+     estimation : out estimation_type := est_zero;
+     -- pragma synthesis_on
+     clk,rn : in std_logic;
 	 a : in std_logic;
 	 loadLO : inout std_logic;
-	 loadHI, loadM, shft, rsthi, done : out std_logic;
-	 Vcc : in real ; -- supply voltage
-     estimation : out estimation_type := est_zero);
+	 loadHI, loadM, shft, rsthi, done : out std_logic
+	 );
 end entity;
 architecture Structural of auto_structural is
 
-signal Q2, Q1, Q0, Q2n, Q1n, Q0n, an, rnn : std_logic ;
-signal D2, D1, D0 : STD_LOGIC; 
-signal eq, loadLO0, done0: std_logic;
-signal estim : estimation_type_array(1 to 23) := (others => est_zero);
-signal net : std_logic_vector(1 to 6);
+signal Q1, Q0, Q1n, Q0n, rnn, an : std_logic ;
+signal D1, D0 : STD_LOGIC; 
+signal eq, loadLO0, done0, Loadhi1: std_logic;
+
+signal product : std_logic_vector(1 to 4);
 signal cnt : std_logic_vector(width-1 downto 0);
-signal cnt_en, en,enn : std_logic;
---synthesis off
+signal cnt_en, en, enn : std_logic;
+-- pragma synthesis_off
+signal estim : estimation_type_array(1 to 20) := (others => est_zero);
 type state is (load,add,shift,stop, error);
 signal disp_state : state;
---synthesis on 
+-- pragma synthesis_on
 
 begin
-compare_cnt_width1: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '0' , y(1) => '0',  y(2) => '0' ,EQI => '1', EQO => cnt_en, Vcc => Vcc, estimation => estim(1));
-compare_cnt_width2: comparator generic map (width => width, delay => delay, logic_family => logic_family ) port map ( x => cnt,  y => std_logic_vector(to_unsigned(width,width)), EQI => '1', EQO => eq, Vcc => Vcc, estimation => estim(2));
-compare_cnt_width3: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '1' , y(1) => '1',  y(2) => '0' ,EQI => '1', EQO => en, Vcc => Vcc, estimation => estim(3));
+compare_cnt_width1: comparator generic map (width => 2, delay => delay, logic_family => logic_family ) 
+        port map ( 
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(1),
+        -- pragma synthesis_on
+        x(0) => Q0, x(1) => Q1, y(0) => '0' , y(1) => '0', EQI => '1', EQO => cnt_en);
+compare_cnt_width2: comparator generic map (width => width, delay => delay, logic_family => logic_family ) 
+        port map (
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(2),
+        -- pragma synthesis_on
+        x => cnt,  y => std_logic_vector(to_unsigned(width,width)), EQI => '1', EQO => eq);
+compare_cnt_width3: comparator generic map (width => 2, delay => delay, logic_family => logic_family ) 
+        port map ( 
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(3),
+        -- pragma synthesis_on
+        x(0) => Q0, x(1) => Q1, y(0) => '1' , y(1) => '1', EQI => '1', EQO => en);
 --counter
-inv6: inv_gate generic map (delay => 0 ns, logic_family => logic_family ) port map (a => en, y => enn, Vcc => Vcc, estimation => estim(4));
-counter : counter_we_Nbits generic  map (width => width, delay => delay, logic_family => logic_family ) port map ( CLK => clk, Rn => enn ,En => cnt_en, Q => cnt, Vcc => Vcc, estimation => estim(5));
+inv6: inv_gate generic map (delay => 0 ns, logic_family => logic_family ) 
+        port map (
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(4),
+        -- pragma synthesis_on
+        a => en, y => enn);
+counter : counter_we_Nbits generic  map (width => width, delay => delay, logic_family => logic_family ) 
+        port map (
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(5),
+        -- pragma synthesis_on
+         CLK => clk, Rn => enn ,En => cnt_en, Q => cnt);
 --inversoarele
-inv4: inv_gate generic map (delay => 0 ns, logic_family => logic_family ) port map (a => a, y => an, Vcc => Vcc, estimation => estim(6));
-inv5: inv_gate generic map (delay => 0 ns, logic_family => logic_family ) port map (a => rn, y => rnn, Vcc => Vcc, estimation => estim(7));
+inv4: inv_gate generic map (delay => 0 ns, logic_family => logic_family ) 
+        port map (
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(20),
+        -- pragma synthesis_on
+        a => a, y => an);
+inv5: inv_gate generic map (delay => 0 ns, logic_family => logic_family ) 
+        port map (
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(6),
+        -- pragma synthesis_on
+        a => rn, y => rnn);
 
---D2
-and5_gate1: and5_gate generic map(delay => 0 ns, logic_family => logic_family) port map(a => Q2n, b => Q1n, c => Q0n, d => an ,e => rn , y => D2, Vcc => Vcc, estimation => estim(8));
+-- -- D2
+-- and5_gate1: and5_gate generic map(delay => 0 ns, logic_family => logic_family) port map(a => Q2n, b => Q1n, c => Q0n, d => an ,e => rn , y => D2, Vcc => Vcc, estimation => estim(8));
+-- -- D1
+-- and_gate2: and4_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2n, b => Q1, c => Q0n, d => eq, y => net(1), Vcc => Vcc, estimation => estim(9));
+-- and_gate3: and3_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2 , b => Q1n , c => Q0n, y => net(2), Vcc => Vcc, estimation => estim(10));
+-- and_gate4: and3_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2n , b => Q1n , c => Q0, y => net(3), Vcc => Vcc, estimation => estim(11));
+-- or_gate1: or4_gate generic map (delay => delay, logic_family => logic_family) port map (a => net(1), b => net(2), c => net(3), d => rnn, y => D1, Vcc => Vcc, estimation => estim(12));
+-- -- D0
+-- and_gate5: and4_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2n, b => Q1, c => Q0n, d => eq, y => net(4), Vcc => Vcc, estimation => estim(13));
+-- and_gate6: and4_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2n, b => Q1n, c => Q0n, d => a, y => net(5), Vcc => Vcc, estimation => estim(14));
+-- or_gate2: or3_gate generic map (delay => delay, logic_family => logic_family) port map (a => net(4), b => net(5), c => rnn, y => D0, Vcc => Vcc, estimation => estim(15));
+
+--Product 1
+and_gate1: and3_gate generic map (delay => delay, logic_family => logic_family) 
+        port map (
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(7),
+        -- pragma synthesis_on
+        a => Q1 , b => Q0n , c => eq, y => product(1));
+--Product 2
+and_gate2: and3_gate generic map (delay => delay, logic_family => logic_family) 
+        port map (
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(8),
+        -- pragma synthesis_on
+        a => Q1n , b => Q0n , c => a, y => product(2));
+--Product 3
+and_gate3: and_gate generic map (delay => delay, logic_family => logic_family) 
+        port map (
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(9),
+        -- pragma synthesis_on
+        a => Q1n , b => an , y => product(3));
+--Product 4
+and_gate4: and_gate generic map (delay => delay, logic_family => logic_family) 
+        port map (
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(10),
+        -- pragma synthesis_on
+        a => Q1n , b => Q0 , y => product(4));
+
 --D1
-and_gate2: and4_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2n, b => Q1, c => Q0n, d => eq, y => net(1), Vcc => Vcc, estimation => estim(9));
-and_gate3: and3_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2 , b => Q1n , c => Q0n, y => net(2), Vcc => Vcc, estimation => estim(10));
-and_gate4: and3_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2n , b => Q1n , c => Q0, y => net(3), Vcc => Vcc, estimation => estim(11));
-or_gate1: or4_gate generic map (delay => delay, logic_family => logic_family) port map (a => net(1), b => net(2), c => net(3), d => rnn, y => D1, Vcc => Vcc, estimation => estim(12));
+or_gate1: or4_gate generic map (delay => delay, logic_family => logic_family) 
+        port map (
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(11),
+        -- pragma synthesis_on
+        a => product(1), b => product(3), c => product(4), d => rnn, y => D1);
 --D0
-and_gate5: and4_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2n, b => Q1, c => Q0n, d => eq, y => net(4), Vcc => Vcc, estimation => estim(13));
-and_gate6: and4_gate generic map (delay => delay, logic_family => logic_family) port map (a => Q2n, b => Q1n, c => Q0n, d => a, y => net(5), Vcc => Vcc, estimation => estim(14));
-or_gate2: or3_gate generic map (delay => delay, logic_family => logic_family) port map (a => net(4), b => net(5), c => rnn, y => D0, Vcc => Vcc, estimation => estim(15));
+or_gate2: or3_gate generic map (delay => delay, logic_family => logic_family) 
+        port map (
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(12),
+        -- pragma synthesis_on
+        a => product(1), b => product(2), c => rnn, y => D0);
 
 --bistabilele
-dff2: dff_Nbits generic map( active_edge => true, delay => delay, logic_family => logic_family ) port map ( D => D2, Ck => clk, Rn => '1', Q => Q2, Qn => Q2n, Vcc => Vcc, estimation => estim(16));
-dff1: dff_Nbits generic map( active_edge => true, delay => delay, logic_family => logic_family ) port map ( D => D1, Ck => clk, Rn => '1', Q => Q1, Qn => Q1n, Vcc => Vcc, estimation => estim(17));
-dff0: dff_Nbits generic map( active_edge => true, delay => delay, logic_family => logic_family ) port map ( D => D0, Ck => clk, Rn => '1', Q => Q0, Qn => Q0n, Vcc => Vcc, estimation => estim(18));
+--dff2: dff_Nbits generic map( active_edge => true, delay => delay, logic_family => logic_family ) port map ( D => D2, Ck => clk, Rn => '1', Q => Q2, Qn => Q2n, Vcc => Vcc, estimation => estim(16));
+dff1: dff_Nbits generic map( active_edge => true, delay => 0 ns, logic_family => logic_family ) 
+        port map (
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(13),
+        -- pragma synthesis_on
+         D => D1, Ck => clk, Rn => '1', Q => Q1, Qn => Q1n);
+dff0: dff_Nbits generic map( active_edge => true, delay => delay, logic_family => logic_family ) 
+        port map (
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(14),
+        -- pragma synthesis_on
+         D => D0, Ck => clk, Rn => '1', Q => Q0, Qn => Q0n);
  
---loadHI
+--loadHI <='1' when current_state = adunare else '0';
 --compare1: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '1' , y(1) => '0',  y(2) => '0' , EQI => '1', EQO => loadHI, Vcc => Vcc, estimation => estim(19));
-compare1: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '0' , y(1) => '0',  y(2) => '1' , EQI => '1', EQO => loadHI, Vcc => Vcc, estimation => estim(19));
---loadLO0                                                                                                                              
-compare2: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '1' , y(1) => '1',  y(2) => '0' , EQI => '1', EQO => loadLO0, Vcc => Vcc, estimation => estim(20));
---shft                                                                                                                                  
-compare3: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '0' , y(1) => '1',  y(2) => '0' , EQI => '1', EQO => shft, Vcc => Vcc, estimation => estim(21));
---done0                                                                                                                                 
-compare4: comparator generic map (width => 3, delay => delay, logic_family => logic_family ) port map ( x(0) => Q0, x(1) => Q1, x(2) => Q2,  y(0) => '1' , y(1) => '1',  y(2) => '0' , EQI => '1', EQO => done0, Vcc => Vcc, estimation => estim(22));
+compare1: comparator generic map (width => 2, delay => delay, logic_family => logic_family ) 
+        port map ( 
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(15),
+        -- pragma synthesis_on
+        x(0) => Q0, x(1) => Q1, y(0) => '1' , y(1) => '0',  EQI => '1', EQO => loadHI1);
+--loadLO <='1' when current_state = gata else '0';                                                                                                                      
+compare2: comparator generic map (width => 2, delay => delay, logic_family => logic_family ) 
+        port map ( 
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(16),
+        -- pragma synthesis_on
+        x(0) => Q0, x(1) => Q1, y(0) => '1' , y(1) => '1',  EQI => '1', EQO => loadLO0);
+--shft <= '1' when current_state = deplasare else '0';                                                                                                                        
+compare3: comparator generic map (width => 2, delay => delay, logic_family => logic_family ) 
+        port map (
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(17),
+        -- pragma synthesis_on
+         x(0) => Q0, x(1) => Q1, y(0) => '0' , y(1) => '1',  EQI => '1', EQO => shft);
+--done0                                                                                                                        
+compare4: comparator generic map (width => 2, delay => delay, logic_family => logic_family ) 
+        port map ( 
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(18),
+        -- pragma synthesis_on
+        x(0) => Q0, x(1) => Q1, y(0) => '1' , y(1) => '1',  EQI => '1', EQO => done0);
 --rsthi
-inv7 : inv_gate generic map (delay => 0 ns, logic_family => logic_family ) port map (a => done0, y => rsthi, Vcc => Vcc, estimation => estim(23));
+inv7 : inv_gate generic map (delay => 0 ns, logic_family => logic_family ) 
+        port map (
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(19),
+        -- pragma synthesis_on
+        a => done0, y => rsthi);
+
 
 loadLO <= loadLO0;
 loadM <= loadLO0;
 done <= done0;
+Loadhi <= Loadhi1;
 
---synthesis off
-sum_up_i : sum_up generic map (N => 23) port map (estim => estim, estimation => estimation);
-process (Q2, Q1, Q0)
-	variable curr_state : std_logic_vector(2 downto 0);
+-- pragma synthesis_off
+sum_up_i : sum_up generic map (N => 20) port map (estim => estim, estimation => estimation);
+process (Q1, Q0)
+	variable curr_state : std_logic_vector(1 downto 0);
 begin
-	curr_state := Q2 & Q1 & Q0;
+	curr_state := Q1 & Q0;
 	case curr_state is
-		when "000" => disp_state <= load;
-		when "001" => disp_state <= add;
-		when "010" => disp_state <= shift;
-		when "011" => disp_state <= stop;
+		when "00" => disp_state <= load;
+		when "01" => disp_state <= add;
+		when "10" => disp_state <= shift;
+		when "11" => disp_state <= stop;
 		when others => disp_state <= error;
 	end case;
 end process;
---synthesis on 
+-- pragma synthesis_on
 
 end Structural;
+
+

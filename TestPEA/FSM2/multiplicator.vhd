@@ -29,12 +29,15 @@ entity multiplicator is
 	         logic_family : logic_family_t := default_logic_family ; -- the logic family of the component
              Cload : real := 0.0 -- capacitive load
 	         );	
-	port (ma,mb : in std_logic_vector (width-1 downto 0); --4/8/16/32
+	port (
+	      -- pragma synthesis_off
+	      Vcc : in real ; -- supply voltage
+          estimation : out estimation_type := est_zero;
+          -- pragma synthesis_on
+	      ma,mb : in std_logic_vector (width-1 downto 0); --4/8/16/32
 	      clk, rn : in std_logic;
 	      mp : out std_logic_vector (2*width-1 downto 0);--8/16/32/64
-	      done : out std_logic;
-	      Vcc : in real ; -- supply voltage
-          estimation : out estimation_type := est_zero
+	      done : out std_logic
           );
 end entity;
 
@@ -43,28 +46,29 @@ architecture behavioral of multiplicator is
 signal my, sum, lo, hi : std_logic_vector (width-1 downto 0);--4/8/16/32
 signal  a1 : std_logic;
 signal loadHI, loadLO, loadM, shft, rsthi, carry : std_logic;
-signal estim : estimation_type_array(1 to 5);
+signal estim : estimation_type_array(1 to 7);
 signal rst : std_logic;
--- signal loadLO_shft, loadHi_shft : std_logic;
+ signal loadLO_shft, loadHi_shft : std_logic;
 
 begin
 rst <=  not rn;
 a1 <= lo(0);
 
--- or2_gate1 : or2_gate port map 
-	-- ( -- pragma synthesis_off
-     -- Vcc => Vcc, --supply voltage
-     -- estimation => estim(6),       
-     -- -- pragma synthesis_on
-	 -- a => loadLo, b=> shft, y => loadLO_shft);
--- or2_gate2 : or2_gate port map 
-	-- ( -- pragma synthesis_off
-     -- Vcc => Vcc, --supply voltage
-     -- estimation => estim(7),       
-     -- -- pragma synthesis_on
-	 -- a => loadHi, b=> shft, y => loadHi_shft);
+ or2_gate1 : or_gate generic map (delay => 0 ns) port map 
+	 ( 
+	 -- pragma synthesis_off
+      Vcc => Vcc, --supply voltage
+      estimation => estim(6),       
+      -- pragma synthesis_on
+	  a => loadLo, b=> shft, y => loadLO_shft);
+ or2_gate2 : or_gate generic map (delay => 0 ns) port map 
+	 ( -- pragma synthesis_off
+      Vcc => Vcc, --supply voltage
+      estimation => estim(7),       
+      -- pragma synthesis_on
+	  a => loadHi, b=> shft, y => loadHi_shft);
 --b1 <= '1' when out1=31 else '0';
-uut : auto_Structural generic map (width=> width, delay => delay, logic_family => logic_family ) port map 	
+control : auto_structural generic map (width=> width, delay => delay, logic_family => logic_family ) port map 	
     ( -- pragma synthesis_off
      Vcc => Vcc, --supply voltage
      estimation => estim(1),       
@@ -81,23 +85,25 @@ LO_i: ureg generic map (width => width, delay => delay, logic_family => logic_fa
      Vcc => Vcc, --supply voltage
      estimation => estim(3),       
      -- pragma synthesis_on
-    D => mb, CK => clk, Clear => '1', S0 => '1', S1 => loadLo, SL => hi(0), SR => '0', Q => lo);
+    D => mb, CK => clk, Clear => '1', S0 => loadLO_shft, S1 => loadLo, SL => hi(0), SR => hi(0), Q => lo);
 HI_i: ureg generic map (width => width, delay => delay, logic_family => logic_family) port map  	
     ( -- pragma synthesis_off
      Vcc => Vcc, --supply voltage
      estimation => estim(4),       
      -- pragma synthesis_on
-    D => sum, CK => clk, Clear => rsthi, S0 => '1', S1 => loadHi, SL => Carry, SR => '0', Q => hi);
+    D => sum, CK => clk, Clear => rsthi, S0 => loadHi_shft, S1 => loadHi, SL => Carry, SR => Carry, Q => hi);
 
 mp <= hi&lo;
 --sum <= my+hi;
-adder: adder_Nbits generic map (width => width) port map
+adder: adder_Nbits generic map (width => width, delay => 0.1 ns) port map
 	( -- pragma synthesis_off
      Vcc => Vcc, --supply voltage
      estimation => estim(5),       
      -- pragma synthesis_on
-    A => my, B => hi, Cin => '0', Cout => Carry,	S => sum );
-
-consum: sum_up generic map (N=>5) port map (estim=>estim, estimation=>estimation);
-
+    A => my, B => hi, Cin => '0', Cout => Carry, S => sum );
+    
+    
+-- pragma synthesis_off
+consum: sum_up generic map (N=>7) port map (estim=>estim, estimation=>estimation);
+-- pragma synthesis_on
 end architecture;

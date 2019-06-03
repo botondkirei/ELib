@@ -1,9 +1,9 @@
 # notatii: Q1 Q0 - starea actuala
 #          D1 D0 - starea viitoare
-# codare start                : 00 
+# codare start          : 00 
 # codare adunare	: 01 
 # codare deplasare	: 10 
-# codare gata	: 11 
+# codare gata		: 11 
 # notam rezultatul evaluarii (cnt = width) cu eq
 
 
@@ -13,11 +13,11 @@
 .ilb Q1 Q0 a0 rn0 eq   # This line specifies the names of the inputs in order 
 .ob D1 D0 # This line specifies the names of the outputs in order 
 ---0- 11            # aceasta linie este cazul cand rn0 = 0
-0001- 00        # aceasta linie este cazul cand starea = start si a0 = 0, rn0=1
+0001- 10        # aceasta linie este cazul cand starea = start si a0 = 0, rn0=1
 0011- 01        # aceasta linie este cazul cand starea = start si a0 = 1, rn0=1
 01-1- 10         # aceasta linie este cazul cand starea = adunare si rn0 = 1, a0  nu conteaza 
 10-11 11        # aceasta linie este cazul cand starea = deplasare si eq = 1 (adica cnt=width), rn0=1,  a0  nu conteaza 
 10-10 00        # aceasta linie este cazul cand starea = deplasare si eq = 0 (adica cnt!=width), rn0=1,  a0  nu conteaza
 11--- 00       # aceasta linie este cazul cand starea = gata , rn0=1,  a0  nu conteaza
 
-.e	     	# Signifiaes the end of the file.
+.e	     	# Signifies the end of the file.

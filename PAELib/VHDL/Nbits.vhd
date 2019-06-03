@@ -102,7 +102,8 @@ package Nbits is
                     );
 		Port ( -- pragma synthesis_off
                Vcc : in real ; --supply voltage
-               estimation : out estimation_type := est_zero ;         -- pragma synthesis_on
+               estimation : out estimation_type := est_zero ;
+			   -- pragma synthesis_on
                D : in STD_LOGIC;
                Ck : in STD_LOGIC;
                Rn : in STD_LOGIC;
@@ -839,6 +840,56 @@ entity dff_Nbits is
                );
 end dff_Nbits;
 
+architecture Structural of dff_Nbits is
+   
+    signal net: STD_LOGIC_VECTOR (2 to 4);
+    signal Ckn,Cknn: std_logic;
+    -- pragma synthesis_off
+    signal estim : estimation_type_array(1 to 4) := (others => est_zero);
+    -- pragma synthesis_on
+begin
+
+    falling_active: if (not active_edge) generate
+        inversor1: inv_gate generic map (delay =>  delay, logic_family => logic_family ) port map (
+        -- pragma synthesis_off
+        estimation => estim(1), Vcc => Vcc,
+        -- pragma synthesis_on
+        a => Ck, y => Ckn);
+    end generate falling_active ;
+    
+    rising_active: if (active_edge) generate
+         -- pragma synthesis_off
+	     estim(1) <= est_zero;
+	     -- pragma synthesis_on
+         Ckn <= Ck;  
+    end generate rising_active;
+    
+    inversor2: inv_gate generic map (delay => 1 ns, logic_family => logic_family) port map (
+        -- pragma synthesis_off
+        estimation => estim(4),
+        Vcc => Vcc,
+        -- pragma synthesis_on
+        a => Ckn, y => Cknn);
+    master: latchD generic map (delay => delay, logic_family => logic_family)   port map (
+        -- pragma synthesis_off
+        Vcc => Vcc, estimation => estim(2), 
+        -- pragma synthesis_on
+            D => D, Ck => Cknn, Rn => Rn, Q => net(2)); 
+    slave : latchD generic map (delay => delay, logic_family => logic_family)
+        port map (
+            -- pragma synthesis_off
+            Vcc => Vcc, estimation => estim(3),
+            -- pragma synthesis_on
+            D => net(2), Ck => Ckn, Rn => Rn, Q => net(3), Qn => net(4));        
+     
+    Q <= net(3);
+    Qn <= net(4);
+    
+    -- pragma synthesis_off
+    sum : sum_up generic map (N => 4) port map (estim => estim, estimation => estimation);
+    -- pragma synthesis_on
+end Structural;
+
 architecture Behavioral of dff_Nbits is
 
     signal Qint: STD_LOGIC := '0';
@@ -878,55 +929,6 @@ begin
     -- pragma synthesis_on
 end Behavioral;
 
-architecture Structural of dff_Nbits is
-   
-    signal net: STD_LOGIC_VECTOR (2 to 4);
-    signal Ckn,Cknn: std_logic;
-    -- pragma synthesis_off
-    signal estim : estimation_type_array(1 to 4) := (others => est_zero);
-    -- pragma synthesis_on
-begin
-
-    falling_active: if (not active_edge) generate
-        inversor1: inv_gate generic map (delay =>  0 ns, logic_family => logic_family ) port map (
-        -- pragma synthesis_off
-        estimation => estim(1), Vcc => Vcc,
-        -- pragma synthesis_on
-        a => Ck, y => Ckn);
-    end generate falling_active ;
-    
-    rising_active: if (active_edge) generate
-         -- pragma synthesis_off
-	     estim(1) <= est_zero;
-	     -- pragma synthesis_on
-         Ckn <= Ck;  
-    end generate rising_active;
-    
-    inversor2: inv_gate generic map (delay => 0 ns, logic_family => logic_family) port map (
-        -- pragma synthesis_off
-        estimation => estim(4),
-        Vcc => Vcc,
-        -- pragma synthesis_on
-        a => Ckn, y => Cknn);
-    master: latchD generic map (delay => delay, logic_family => logic_family)   port map (
-        -- pragma synthesis_off
-        Vcc => Vcc, estimation => estim(2), 
-        -- pragma synthesis_on
-            D => D, Ck => Cknn, Rn => Rn, Q => net(2)); 
-    slave : latchD generic map (delay => delay, logic_family => logic_family)
-        port map (
-            -- pragma synthesis_off
-            Vcc => Vcc, estimation => estim(3),
-            -- pragma synthesis_on
-            D => net(2), Ck => Ckn, Rn => Rn, Q => net(3), Qn => net(4));        
-     
-    Q <= net(3);
-    Qn <= net(4);
-    
-    -- pragma synthesis_off
-    sum : sum_up generic map (N => 4) port map (estim => estim, estimation => estimation);
-    -- pragma synthesis_on
-end Structural;
 ---------------------------------------------------------------------------------
 ------------------------------------------------------------
 -- Description: T type flip flop with power and area estimation
@@ -966,7 +968,7 @@ entity tff is
                Ck, Rn : in STD_LOGIC;
                Q, Qn : out STD_LOGIC
                );
-End tff;
+End entity;
 
 architecture Structural of tff is
    
@@ -2861,26 +2863,29 @@ use work.PEGates.all;
 use work.Nbits.all;
 
 entity comparator is
-    Generic ( width: integer :=4 ; 
-            delay : time := 1 ns;
-            logic_family : logic_family_t; -- the logic family of the component
-            Cload: real := 5.0 ; -- capacitive load
-            Area: real := 0.0 --parameter area 
-             );
-    Port ( x : in STD_LOGIC_VECTOR (width-1 downto 0);
-           y : in STD_LOGIC_VECTOR (width-1 downto 0);
-           EQI : in STD_LOGIC;
-           EQO : out STD_LOGIC;
-           Vcc : in real ; -- supply voltage
-           estimation : out estimation_type := est_zero
-           );
+        Generic ( width: integer :=4 ; 
+                delay : time := 1 ns;
+                logic_family : logic_family_t := default_logic_family; -- the logic family of the component
+                Cload: real := 5.0 ; -- capacitive load
+                Area: real := 0.0 --parameter area 
+                 );
+        Port ( -- pragma synthesis_off
+               Vcc : in real ; --supply voltage
+               estimation : out estimation_type := est_zero;
+               -- pragma synthesis_on
+               x : in STD_LOGIC_VECTOR (width-1 downto 0);
+               y : in STD_LOGIC_VECTOR (width-1 downto 0);
+               EQO : out STD_LOGIC;
+               EQI : in STD_LOGIC
+               );
 end comparator;
 
 architecture Behavioral of comparator is
 
 signal EQ : STD_LOGIC_VECTOR (width downto 0);
+-- pragma synthesis_off
 signal estim : estimation_type_array(1 to width);
- 
+ -- pragma synthesis_on
 begin
 
 
@@ -2896,9 +2901,9 @@ gen_cmp_cells:  for i in 0 to width-1 generate
 end generate gen_cmp_cells;        
 
 EQO<=EQ(width);
-
+-- pragma synthesis_off
 sum_up_i : sum_up generic map (N => width) port map (estim => estim, estimation => estimation);
-
+-- pragma synthesis_on
 end Behavioral;
 
 
@@ -2958,13 +2963,13 @@ begin
 
 	OUTDFF(0)<=SL;
 	gen_cells:  for i in  width downto 1 generate
-			gen_dff: dff_Nbits generic map (delay => 0 ns, active_edge => TRUE)
+			gen_dff: dff_Nbits generic map (delay => delay, active_edge => TRUE, logic_family => logic_family)
 			 port map (
 				--pragma synthesis_off
 				Vcc => Vcc, estimation => estim(i),
 				--pragma synthesis_on
 				D => outmux(i) , Ck => CK, Rn => Clear, Q => outdff(i), Qn => open);
-			gen_mux: mux4_1 generic map( delay => 0 ns ) 
+			gen_mux: mux4_1 generic map( delay => delay, logic_family => logic_family ) 
 				port map(
 					 --pragma synthesis_off
 					 Vcc => Vcc,  estimation => estim(i + width),

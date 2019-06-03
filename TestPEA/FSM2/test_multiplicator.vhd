@@ -50,9 +50,9 @@ rstt <='1', '0' after 100 ns;
 process
 	begin
 	clkt <= '0';
-	wait for 10 ns;
+	wait for 15 ns;
 	clkt <= '1';
-	wait for 10 ns;
+	wait for 15 ns;
 end process;
 
 process (clkt, rstt)
