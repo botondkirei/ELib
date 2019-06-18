@@ -42,8 +42,8 @@ use work.Nbits.all;
 
 
 entity get_IIR_area_DFI is
-	Generic (N : integer := 20;
-			 width : integer :=6);
+	Generic (N : integer := 11;
+			 width : integer :=8);
 end get_IIR_area_DFI;
 
 architecture get_area of get_IIR_area_DFI is

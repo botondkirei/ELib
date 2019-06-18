@@ -3117,8 +3117,8 @@ entity IIR is
     Generic ( 
             logic_family : logic_family_t := default_logic_family; -- the logic family of the component
             Cload: real := 5.0 ; -- capacitive load
-            N : natural := 20;
-			width : natural := 16
+            N : natural := 10;
+			width : natural := 4
              );
     Port ( -- pragma synthesis_off
            Vcc : in real ; -- supply voltage
@@ -3284,18 +3284,144 @@ end entity;
 
 --end architecture;
 
-architecture DirectFormII of IIR is
+--architecture DirectFormII of IIR is
 
-    type vector is array (N downto 0) of STD_LOGIC_VECTOR (width-1 downto 0);
-    type pvector is array (N downto 0) of STD_LOGIC_VECTOR (2*width-1 downto 0);
-    signal done, carry: std_logic_vector(N downto 0);
-    signal A : vector := (others => (others =>'1'));
-    signal B : vector := (others => (others =>'1'));
-    signal outdff: STD_LOGIC_VECTOR (N-1 downto 0);
-    signal d, sum_right, sum_left : vector;
-    signal d_A, d_B : pvector;
-    signal sum_right_B0: std_logic_vector(2*width-1 downto 0);
+--    type vector is array (N downto 0) of STD_LOGIC_VECTOR (width-1 downto 0);
+--    type pvector is array (N downto 0) of STD_LOGIC_VECTOR (2*width-1 downto 0);
+--    signal done, carry: std_logic_vector(N downto 0);
+--    signal A : vector := (others => (others =>'1'));
+--    signal B : vector := (others => (others =>'1'));
+--    signal outdff: STD_LOGIC_VECTOR (N-1 downto 0);
+--    signal d, sum_right, sum_left : vector;
+--    signal d_A, d_B : pvector;
+--    signal sum_right_B0: std_logic_vector(2*width-1 downto 0);
     
+--    component multiplicator
+--		generic (width: integer := 32 ;
+--                 delay : time := 0 ns ;
+--                 logic_family : logic_family_t := default_logic_family ; -- the logic family of the component
+--                 Cload : real := 0.0 -- capacitive load
+--                 );    
+--        port (
+--             --pragma synthesis_off
+--              Vcc : in real ; -- supply voltage
+--              estimation : out estimation_type := est_zero;
+--              --pragma synthesis_on
+--              ma,mb : in std_logic_vector (width-1 downto 0); --4/8/16/32
+--              clk, rn : in std_logic;
+--              mp : out std_logic_vector (2*width-1 downto 0);--8/16/32/64
+--              done : out std_logic
+--              );
+--	end component;
+--	--pragma synthesis_off
+--    signal estim : estimation_type_array(1 to 7*N+3);
+--    --pragma synthesis_on
+--begin
+
+ 
+--    A(0) <= coeff;
+--    B(0) <= A(N);
+--   coefficients: for i in 1 to N generate
+--        coeffA : ureg  Generic map ( width => width) Port map (
+--               -- pragma synthesis_off
+--               Vcc => Vcc, --supply voltage
+--               estimation => estim(i),
+--               -- pragma synthesis_on
+--               D => A(i-1),
+--               Clear => '1',
+--               CK => clk,
+--               S1 => load_coeff,
+--               S0 => load_coeff,
+--               SR => 'X',
+--               SL => 'X',
+--               Q => A(i)
+--               );
+--         coeffB : ureg  Generic map ( width => width) Port map (
+--               -- pragma synthesis_off
+--               Vcc => Vcc, --supply voltage
+--               estimation => estim(i+N),
+--               -- pragma synthesis_on
+--               D => B(i-1),
+--               Clear => '1',
+--               CK => clk,
+--               S1 => load_coeff,
+--               S0 => load_coeff,
+--               SR => 'X',
+--               SL => 'X',
+--               Q => B(i)
+--               );
+--   end generate coefficients;
+       
+--   mult0: multiplicator generic map(width => width) port map (
+--            --pragma synthesis_off
+--            Vcc => vcc, estimation => estim(2*N+1), 
+--            --pragma synthesis_on
+--            ma => d(0), mb => B(0), clk => clk, rn => rst, mp => sum_right_B0, done => done(0));
+            
+--   add0: adder_Nbits generic map (width => width) port map
+--        ( -- pragma synthesis_off
+--         Vcc => Vcc, --supply voltage
+--         estimation => estim(2*N+2),       
+--         -- pragma synthesis_on
+--         A => sum_left(0), B => x , Cin => '0', Cout => carry(0), S => d(0));
+ 
+--    add1: adder_Nbits generic map (width => width) port map
+--        ( -- pragma synthesis_off
+--         Vcc => Vcc, --supply voltage
+--         estimation => estim(2*N+3),       
+--         -- pragma synthesis_on
+--         A => sum_right(0), B => sum_right_B0(2*width-1 downto width) , Cin => '0', Cout => carry(0), S => y);
+            
+--    delay_cells: for i in 1 to N generate
+--         sum_delay : ureg  Generic map ( width => width) Port map (
+--               -- pragma synthesis_off
+--               Vcc => Vcc, --supply voltage
+--               estimation => estim(2*N+3 + i),
+--               -- pragma synthesis_on
+--               D => d(i-1),
+--               Clear => '1',
+--               CK => clk,
+--               S1 => load_coeff,
+--               S0 => load_coeff,
+--               SR => 'X',
+--               SL => 'X',
+--               Q => d(i)
+--               );      
+--     end generate;
+                    
+--    operations: for i in 1 to N generate
+--        --add_mult: sum(i-1) <= sum(i) + x_d(i) * B(i) + y(i) * A(i);
+--        mult1 : multiplicator generic map(width => width) port map (
+--            --pragma synthesis_off
+--            Vcc => vcc, estimation => estim(3*N+3 + i), 
+--            --pragma synthesis_on
+--            ma => d(i), mb => B(i), clk => clk, rn => rst, mp => d_B(i), done => done(i));
+--        mult2 : multiplicator generic map(width => width) port map (
+--            --pragma synthesis_off
+--            Vcc => vcc, estimation => estim(4*N+3 + i), 
+--            --pragma synthesis_on
+--            ma => d(i), mb => A(i-1), clk => clk, rn => rst, mp => d_A(i), done => done(i));
+--        add1 : adder_Nbits generic map (width => width) port map
+--        ( -- pragma synthesis_off
+--         Vcc => Vcc, --supply voltage
+--         estimation => estim(5*N+3 + i),       
+--         -- pragma synthesis_on
+--         A => sum_left(i), B => d_B(i)(2*width-1 downto width), Cin => '0', Cout => carry(i), S => sum_left(i-1) );
+--        add2 : adder_Nbits generic map (width => width) port map
+--        ( -- pragma synthesis_off
+--         Vcc => Vcc, --supply voltage
+--         estimation => estim(6*N+3 + i),       
+--         -- pragma synthesis_on
+--         A => sum_right(i), B => d_A(i)(2*width-1 downto width), Cin => carry(i), Cout => open, S => sum_right(i-1) );
+--     end generate;   
+     
+--    -- pragma synthesis_off
+--	sum_up_i : sum_up generic map (N =>7*N+3) port map (estim => estim, estimation => estimation);
+--	-- pragma synthesis_on 
+
+--end architecture;
+
+architecture lattice of IIR is
     component multiplicator
 		generic (width: integer := 32 ;
                  delay : time := 0 ns ;
@@ -3313,110 +3439,116 @@ architecture DirectFormII of IIR is
               done : out std_logic
               );
 	end component;
+	
+    type vector is array (N downto 0) of STD_LOGIC_VECTOR (width-1 downto 0);
+    type pvector is array (N downto 0) of STD_LOGIC_VECTOR (2*width-1 downto 0);
+    signal done, carry: std_logic_vector(N downto 0);
+    signal k,v,s : vector := (others => (others =>'1'));
+    signal f, g , g_r, gv_fb : vector := (others => (others =>'1'));
+    signal fk, gk, gv   : pvector := (others => (others =>'1'));
+
 	--pragma synthesis_off
-    signal estim : estimation_type_array(1 to 7*N+3);
+    signal estim : estimation_type_array(1 to 9*N+1 );
     --pragma synthesis_on
 begin
-
- 
-    A(0) <= coeff;
-    B(0) <= A(N);
+   
+   f(0) <= x;
+   k(0) <= coeff;
+   v(0) <= k(N);
    coefficients: for i in 1 to N generate
-        coeffA : ureg  Generic map ( width => width) Port map (
+        coeffK : ureg  Generic map ( width => width) Port map (
                -- pragma synthesis_off
                Vcc => Vcc, --supply voltage
                estimation => estim(i),
                -- pragma synthesis_on
-               D => A(i-1),
+               D => K(i-1),
                Clear => '1',
                CK => clk,
                S1 => load_coeff,
                S0 => load_coeff,
                SR => 'X',
                SL => 'X',
-               Q => A(i)
+               Q => K(i)
                );
-         coeffB : ureg  Generic map ( width => width) Port map (
+        coeffV : ureg  Generic map ( width => width) Port map (
                -- pragma synthesis_off
                Vcc => Vcc, --supply voltage
-               estimation => estim(i+N),
+               estimation => estim(N + i),
                -- pragma synthesis_on
-               D => B(i-1),
+               D => V(i-1),
                Clear => '1',
                CK => clk,
                S1 => load_coeff,
                S0 => load_coeff,
                SR => 'X',
                SL => 'X',
-               Q => B(i)
+               Q => V(i)
                );
-   end generate coefficients;
-       
-   mult0: multiplicator generic map(width => width) port map (
-            --pragma synthesis_off
-            Vcc => vcc, estimation => estim(2*N+1), 
-            --pragma synthesis_on
-            ma => d(0), mb => B(0), clk => clk, rn => rst, mp => sum_right_B0, done => done(0));
-            
-   add0: adder_Nbits generic map (width => width) port map
-        ( -- pragma synthesis_off
-         Vcc => Vcc, --supply voltage
-         estimation => estim(2*N+2),       
-         -- pragma synthesis_on
-         A => sum_left(0), B => x , Cin => '0', Cout => carry(0), S => d(0));
- 
-    add1: adder_Nbits generic map (width => width) port map
-        ( -- pragma synthesis_off
-         Vcc => Vcc, --supply voltage
-         estimation => estim(2*N+3),       
-         -- pragma synthesis_on
-         A => sum_right(0), B => sum_right_B0(2*width-1 downto width) , Cin => '0', Cout => carry(0), S => y);
-            
-    delay_cells: for i in 1 to N generate
-         sum_delay : ureg  Generic map ( width => width) Port map (
-               -- pragma synthesis_off
-               Vcc => Vcc, --supply voltage
-               estimation => estim(2*N+3 + i),
-               -- pragma synthesis_on
-               D => d(i-1),
-               Clear => '1',
-               CK => clk,
-               S1 => load_coeff,
-               S0 => load_coeff,
-               SR => 'X',
-               SL => 'X',
-               Q => d(i)
-               );      
-     end generate;
-                    
-    operations: for i in 1 to N generate
+    end generate coefficients;
+
+    lattice_cell: for i in 1 to N generate
         --add_mult: sum(i-1) <= sum(i) + x_d(i) * B(i) + y(i) * A(i);
         mult1 : multiplicator generic map(width => width) port map (
             --pragma synthesis_off
-            Vcc => vcc, estimation => estim(3*N+3 + i), 
+            Vcc => vcc, estimation => estim(2*N + i), 
             --pragma synthesis_on
-            ma => d(i), mb => B(i), clk => clk, rn => rst, mp => d_B(i), done => done(i));
+            ma => f(i-1), mb => k(i), clk => clk, rn => rst, mp => fk(i), done => done(i));
         mult2 : multiplicator generic map(width => width) port map (
             --pragma synthesis_off
-            Vcc => vcc, estimation => estim(4*N+3 + i), 
+            Vcc => vcc, estimation => estim(3*N + i), 
             --pragma synthesis_on
-            ma => d(i), mb => A(i-1), clk => clk, rn => rst, mp => d_A(i), done => done(i));
+            ma => g(i-1), mb => k(i), clk => clk, rn => rst, mp => gk(i), done => done(i));
         add1 : adder_Nbits generic map (width => width) port map
         ( -- pragma synthesis_off
          Vcc => Vcc, --supply voltage
-         estimation => estim(5*N+3 + i),       
+         estimation => estim(4*N + i),       
          -- pragma synthesis_on
-         A => sum_left(i), B => d_B(i)(2*width-1 downto width), Cin => '0', Cout => carry(i), S => sum_left(i-1) );
-        add2 : adder_Nbits generic map (width => width) port map
+         A => f(i), B => gk(i-1)(2*width-1 downto width), Cin => '0', Cout => carry(i), S => f(i-1) );
+         add2 : adder_Nbits generic map (width => width) port map
         ( -- pragma synthesis_off
          Vcc => Vcc, --supply voltage
-         estimation => estim(6*N+3 + i),       
+         estimation => estim(5*N + i),       
          -- pragma synthesis_on
-         A => sum_right(i), B => d_A(i)(2*width-1 downto width), Cin => carry(i), Cout => open, S => sum_right(i-1) );
-     end generate;   
-     
-    -- pragma synthesis_off
-	sum_up_i : sum_up generic map (N =>7*N+3) port map (estim => estim, estimation => estimation);
-	-- pragma synthesis_on 
+         A => g_r(i-1), B => fk(i-1)(2*width-1 downto width), Cin => '0', Cout => carry(i), S => g(i) );
+        delays : ureg  Generic map ( width => width) Port map (
+               -- pragma synthesis_off
+               Vcc => Vcc, --supply voltage
+               estimation => estim(6*N + i),
+               -- pragma synthesis_on
+               D => g(i-1),
+               Clear => '1',
+               CK => clk,
+               S1 => load_coeff,
+               S0 => load_coeff,
+               SR => 'X',
+               SL => 'X',
+               Q => g_r(i-1)
+               );
+        mult3 : multiplicator generic map(width => width) port map (
+            --pragma synthesis_off
+            Vcc => vcc, estimation => estim(7*N + i), 
+            --pragma synthesis_on
+            ma => g(i), mb => v(i), clk => clk, rn => rst, mp => gv(i), done => done(i));
+              add3 : adder_Nbits generic map (width => width) port map
+        ( -- pragma synthesis_off
+         Vcc => Vcc, --supply voltage
+         estimation => estim(8*N + i),       
+         -- pragma synthesis_on
+         A => gv_fb(i), B => gv(i-1)(2*width-1 downto width), Cin => '0', Cout => carry(i), S => gv_fb(i-1) );
 
+     end generate;
+ 
+ 
+    mult : multiplicator generic map(width => width) port map (
+       --pragma synthesis_off
+       Vcc => vcc, estimation => estim(9*N+1), 
+       --pragma synthesis_on
+       ma => g(0), mb => v(0), clk => clk, rn => rst, mp => gv(0), done => open);
+    
+    
+    Y<=  gv_fb(0);
+	--pragma synthesis_off
+    sum_up_i : sum_up generic map (N =>9*N+1) port map (estim => estim, estimation => estimation);
+    --pragma synthesis_on    
+    
 end architecture;
