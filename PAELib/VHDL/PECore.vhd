@@ -63,7 +63,7 @@ package PECore is
 			cmos
 			); 
 			
-	constant default_logic_family : logic_family_t := HC;
+	constant default_logic_family : logic_family_t := ssxlib;
 	constant default_VCC : real := 5.0; 
 	constant Undef : real := 0.0 ;
 	constant est_zero : estimation_type := ((0.0,0.0),0.0);
@@ -150,7 +150,7 @@ package PECore is
 	constant Area_values : value_matrix := ( 
 		tristate_buffer =>( ssxlib => 0.00E+00, sxlib =>  0.00E+00 , vxlib => 0.00E+00 , vsclib => 0.00E+00 , wsclib => 0.00E+00 , vgalib => 0.00E+00 , rgalib => 0.00E+00 , ac => 0.00E+00 , act => 0.00E+00 , hc => 1.67E-07 , hct => 1.67E-07 , cmos => 0.00E+00),
 		buffer_non_inv =>( ssxlib => 1.21E-11, sxlib =>  1.21E-11 , vxlib => 1.21E-11 , vsclib => 6.97E-12 , wsclib => 7.74E-12 , vgalib => 0.00E+00 , rgalib => 0.00E+00 , ac => 0.00E+00 , act => 0.00E+00 , hc => 0.00E+00 , hct => 0.00E+00 , cmos => 0.00E+00),
-		inverter =>( ssxlib => 9.08E-12, sxlib =>  9.08E-12 , vxlib => 9.08E-12 , vsclib => 5.23E-12 , wsclib => 5.81E-12 , vgalib => 8.52E-12 , rgalib => 8.52E-12 , ac => 0.00E+00 , act => 0.00E+00 , hc => 0.00E+00 , hct => 0.00E+00 , cmos => 0.00E+00),
+		inverter =>( ssxlib => 9.08E-12, sxlib =>  9.08E-12 , vxlib => 9.08E-12 , vsclib => 5.23E-12 , wsclib => 5.81E-12 , vgalib => 8.52E-12 , rgalib => 8.52E-12 , ac => 0.00E+00 , act => 0.00E+00 , hc => 1.00E-07 , hct => 0.00E+00 , cmos => 0.00E+00),
 		and2 =>( ssxlib => 1.51E-11, sxlib =>  1.51E-11 , vxlib => 1.51E-11 , vsclib => 8.71E-12 , wsclib => 9.68E-12 , vgalib => 0.00E+00 , rgalib => 0.00E+00 , ac => 0.00E+00 , act => 0.00E+00 , hc => 2.50E-07 , hct => 2.50E-07 , cmos => 0.00E+00),
 		and3 =>( ssxlib => 1.82E-11, sxlib =>  1.82E-11 , vxlib => 1.82E-11 , vsclib => 1.22E-11 , wsclib => 1.36E-11 , vgalib => 0.00E+00 , rgalib => 0.00E+00 , ac => 0.00E+00 , act => 0.00E+00 , hc => 3.33E-07 , hct => 3.33E-07 , cmos => 0.00E+00),
 		and4 =>( ssxlib => 2.12E-11, sxlib =>  2.12E-11 , vxlib => 2.12E-11 , vsclib => 1.39E-11 , wsclib => 1.55E-11 , vgalib => 0.00E+00 , rgalib => 0.00E+00 , ac => 0.00E+00 , act => 0.00E+00 , hc => 5.00E-07 , hct => 5.00E-07 , cmos => 0.00E+00),
