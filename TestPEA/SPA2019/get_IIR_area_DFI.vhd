@@ -44,30 +44,39 @@ end get_IIR_area_DFI;
 
 architecture get_area of get_IIR_area_DFI is
     
-    signal estim : estimation_type_array(1 to 8);
-
+    signal estim : estimation_type;
+    signal clk : std_logic;
+    signal power1: real;
 begin
 
-area : for i in 1 to 8 generate
 
     area_IIR: IIR Generic map ( 
                 N=>10,
-                width =>i*4
+                width =>4
                  )
         Port map ( -- pragma synthesis_off
                Vcc => 0.0,
-               estimation => estim(i),
+               estimation => estim,
                -- pragma synthesis_on 
                x => (others => '1'),
                y => open,
-               clk  =>'1', rst =>'1', load_coeff =>'1',
+               clk  =>clk, rst =>'1', load_coeff =>'1',
                coeff  => (others => '1')
                );
- end generate area;
  
 process begin
-    wait for 10 ns;
+    wait for 100000 ns;
     assert false report "end of simulation" severity failure;
 end process;
+
+process begin
+    clk<='1';
+    wait for 5 ns;
+    clk <= '0';
+    wait for 5 ns;
+end process;
+
+pe : power_estimator generic map (time_window => 5000 ns) 
+		             port map (estimation => estim, power => power1);
 
 end get_area;

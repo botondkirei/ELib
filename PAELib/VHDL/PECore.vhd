@@ -63,7 +63,7 @@ package PECore is
 			cmos
 			); 
 			
-	constant default_logic_family : logic_family_t := ssxlib;
+	constant default_logic_family : logic_family_t := wsclib;
 	constant default_VCC : real := 5.0; 
 	constant Undef : real := 0.0 ;
 	constant est_zero : estimation_type := ((0.0,0.0),0.0);

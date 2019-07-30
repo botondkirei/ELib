@@ -2992,7 +2992,7 @@ begin
 					 --pragma synthesis_off
 					 Vcc => Vcc,  estimation => estim(i + width),
 					 --pragma synthesis_on
-					  I(3) => D(i-1), I(2) => outdff(i-1), I(1) => outdff(i+1), I(0) => outdff(i), A(1) => S1, A(0) => S0, Y => outmux(i));
+					  I(0) => D(i-1), I(1) => outdff(i-1), I(2) => outdff(i+1), I(3) => outdff(i), A(1) => S1, A(0) => S0, Y => outmux(i));
 	end generate gen_cells;
 
 	OUTDFF(width+1)<= SR;        
@@ -3117,7 +3117,7 @@ entity IIR is
     Generic ( 
             logic_family : logic_family_t := default_logic_family; -- the logic family of the component
             Cload: real := 5.0 ; -- capacitive load
-            N : natural := 10;
+            N : natural := 4;
 			width : natural := 4
              );
     Port ( -- pragma synthesis_off
@@ -3177,7 +3177,7 @@ end entity;
 --               estimation => estim(i),
 --               -- pragma synthesis_on
 --               D => A(i-1),
---               Clear => '1',
+--               Clear => '0',
 --               CK => clk,
 --               S1 => load_coeff,
 --               S0 => load_coeff,
@@ -3191,7 +3191,7 @@ end entity;
 --               estimation => estim(i+N),
 --               -- pragma synthesis_on
 --               D => B(i-1),
---               Clear => '1',
+--               Clear => '0',
 --               CK => clk,
 --               S1 => load_coeff,
 --               S0 => load_coeff,
