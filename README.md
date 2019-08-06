@@ -1,8 +1,12 @@
-﻿# Energy Aware Modeling
+# Energy/Power/Area Aware Modeling (PEAAM)
 
-The effort to "digitize" as more analog components is a continous trend in IC design. Ie. a fully synthesizable frequency synthesizer could be a great leap, as the migration from one technology to another one of such a component would be carried out by an EDA software. Power Estimation Library (PElib), later Power and Aria Estimation Library (PAElib) consist of energy aware components that could be a great aid for power estimation in an early (RTL description) design phase. PAElib is written in VHDL, but the power/area estimation concept is suitable to be "translated" in other HDL languges, into Verilog an SystemC.
+Logic Design is facing new challanges with the development of integrated circuit (IC) manufacturing technologies. Due to the minimization of CMOS tranzistor sizes, the prelevant power dissipation source becomes the leakage current instead of capacitive switching. In this context, a power/energy/area estimated is required of the design in an early design stage (ie. RTL description) of digital systems. A such estimate of a new design  can be provided by applying the Energy/Power/Area Aware Modeling concept. Power Estimation Library (PElib), later Power and Aria Estimation Library (PAElib) consist of energy/power/area aware components that can be used in strctural descriptins and provides power and area estimation in an early design phase.  PAElib is written in VHDL, thus estimations are obtained in a VHDL simulator. Note that, the power/area estimation concept is suitable to be "translated" in any HDL language, Verilog or SystemC. 
 
-#Repostory Organization
+There are other applications of the power/energy/area aware modeling concept, ie. the "digitization" of analog functional blocks. The effort to replace analog circuits with digital ones is propelled by the advantages offered by digital design flow: easy reuse of a design, scalability, portability, etc. For example, the achivement of an all-digital (fully synthesizable) frequency synthesizer could be a significant aid for IC designers, as its implementation would be carried out by an EDA software. As analog circuits are far more efficient then their digital counterparts - because analog components are customized and optimized for a certain functionality - early estimations of power and area characteristics of the digital implementation is required. Thus, a designer can make a comparison of an analog and digital implementation. Cosidering the example at hand, an all-digital frequency synthesizer can be desicrbed using HDL, but its power and area demand is found only after the synthesis and the technology mapping of the digital circuit itself. Moreover, power and area estimates are provided by specialized software, which are not royalty free. PAELib gives a free alternative for the designer in the assesment of power and area requirement.
+
+A third application of the PEAAM concept is the estimation of power and area requirements agains the complexity of a circuit. 
+
+# Repostory Organization
 
 ## PElib 
 
