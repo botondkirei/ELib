@@ -8,15 +8,15 @@ A third application of the PEAAM concept is the estimation of power and area req
 
 # Repostory Organization
 
-## PElib 
+## PAElib 
 
-This directory hold the source code (currently in VHDL) of PElib. 
+This directory hold the source code (currently in VHDL) of PAElib. 
 
-## TestPE
+## TestPAE
 
-TestPE library is the test suite of PElib. The continuous development of the test suite is desired. Currently some simple circuits
+TestPE library is the test suite of PAElib. The continuous development of the test suite is desired. Currently some simple circuits
 (ring oscillator and finite state machines) were assambled using discrete electronic components form HCT family. Their implementation
-was carried out using PElib. Measurement and simulation results are compared in the testsuite.
+was carried out using PAElib. Measurement and simulation results are compared in the testsuite.
 
 ## docs
 
