@@ -24,5 +24,5 @@ Project related publications. The test circuits used in the suite are given in t
 
 # References
 
-[1] B. S. Kirei, V.-I.-M. Chereja, S. Hintea, M. D. Topa, "PAELib: A VHDL Library for Area and Power Dissipation Estimation of CMOS Logic Circuits," Advances in Electrical and Computer Engineering, vol.19, no.1, pp.9-16, 2019, doi:10.4316/AECE.2019.01002
-[2] Verginia-Iulia-Maria Chereja, Adriana-Ioana Potarniche, Sergiu-Alex Ranga, Botond Sandor Kirei și Marina Dana Țopa, "Power Dissipation Estimation of CMOS Digital Circuits at the Gate Level in VHDL",  International Symposium on Electronics and Telecommunications 2018, Nov. 7-9, Timisoara, Romania 
+[1] B. S. Kirei, V.-I.-M. Chereja, S. Hintea, M. D. Topa, "PAELib: A VHDL Library for Area and Power Dissipation Estimation of CMOS Logic Circuits," Advances in Electrical and Computer Engineering, vol.19, no.1, pp.9-16, 2019, [doi:10.4316/AECE.2019.01002](http://www.aece.ro/abstractplus.php?year=2019&number=1&article=2)
+[2] Verginia-Iulia-Maria Chereja, Adriana-Ioana Potarniche, Sergiu-Alex Ranga, Botond Sandor Kirei și Marina Dana Țopa, "Power Dissipation Estimation of CMOS Digital Circuits at the Gate Level in VHDL",  International Symposium on Electronics and Telecommunications 2018, Nov. 7-9, Timisoara, Romania, [doi: 10.1109/ISETC.2018.8583957](https://ieeexplore.ieee.org/document/8583957) 
