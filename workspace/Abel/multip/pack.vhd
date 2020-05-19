@@ -15,7 +15,7 @@ component  and2
 generic (c_comutat : real := 1.0e-8 );
 
 port (a,b: in  std_logic;      
-      F: out std_logic;           
+      o: out std_logic;           
       consum : out real := 0.0);
 end component;
 
@@ -23,14 +23,14 @@ component or2
 generic (c_comutat : real := 1.0e-8);
 
 port (a,b: in  std_logic;      
-      F: out std_logic;           
+      o: out std_logic;           
       consum : out real := 0.0);
 end component;
  component   xor2              
 generic (c_comutat : real := 1.0e-8);
 
 port (a,b: in  std_logic;      
-      F: out std_logic;           
+      o: out std_logic;           
       consum : out real := 0.0);
 end component ;    
 
@@ -67,7 +67,7 @@ component nand3 is
 generic (c_comutat : real := 1.0e-8 );
 
 port (a,b,c: in  std_logic;      
-      F: out std_logic;           
+      o: out std_logic;           
       consum : out real := 0.0);
 end component;   
 
@@ -85,7 +85,7 @@ component inv is
 generic (c_comutat : real := 1.0e-8 );
 
 port (a: in  std_logic;      
-      F: out std_logic;           
+      o: out std_logic;           
       consum : out real := 0.0);
 end component;
 
@@ -103,7 +103,7 @@ component and3 is
 generic (c_comutat : real := 1.0e-8 );
 
 port (a,b,c: in  std_logic;      
-      F: out std_logic;           
+      o: out std_logic;           
       consum : out real := 0.0);
 end component; 
 
@@ -111,7 +111,7 @@ component nor2 is
 generic (c_comutat : real := 1.0e-8 );
 
 port (a,b: in  std_logic;      
-      F: out std_logic;           
+      o: out std_logic;           
       consum : out real := 0.0);
 end component; 
 
@@ -119,7 +119,7 @@ component or4 is
 generic (c_comutat : real := 1.0e-8 );
 
 port (a,b,c,d: in  std_logic;      
-      F: out std_logic;           
+      o: out std_logic;           
       consum : out real := 0.0);
 end component;    
 
@@ -281,7 +281,7 @@ entity or2 is
 generic (c_comutat : real := 1.0e-8);
 
 port (a,b: in  std_logic;      
-      F: out std_logic;           
+      o: out std_logic;           
       consum : out real := 0.0);
 end or2;    
 
@@ -290,21 +290,21 @@ end or2;
 architecture primitive of or2 is   
 	
 signal nr_comutari : real :=0.0;
-signal Fintern : std_logic;
+signal ointern : std_logic;
 
 begin
   
-   Fintern <= a or b ;                    
+   ointern <= a or b ;                    
                                     
 
-	process (Fintern)
+	process (ointern)
  	begin
 		nr_comutari <= nr_comutari + 1.0;
 	end process;
 
 	consum <= c_comutat * nr_comutari;
 
-	F <= Fintern;
+	o <= ointern;
 
 end primitive;   
 library ieee;
@@ -316,7 +316,7 @@ entity xor2 is
 generic (c_comutat : real := 1.0e-8);
 
 port (a,b: in  std_logic;      
-      F: out std_logic;           
+      o: out std_logic;           
       consum : out real := 0.0);
 end xor2;    
 
@@ -325,21 +325,21 @@ end xor2;
 architecture primitive of xor2 is   
 	
 signal nr_comutari : real :=0.0;
-signal Fintern : std_logic;
+signal ointern : std_logic;
 
 begin
   
-   Fintern <= a xor b ;                    
+   ointern <= a xor b ;                    
                                     
 
-	process (Fintern)
+	process (ointern)
  	begin
 		nr_comutari <= nr_comutari + 1.0;
 	end process;
 
 	consum <= c_comutat * nr_comutari;
 
-	F <= Fintern;
+	o <= ointern;
 
 end primitive;
 
@@ -348,34 +348,48 @@ use ieee.std_logic_1164.all;
 
 
 
-entity and2 is                 
-generic (c_comutat : real := 1.0e-8 );
+entity and2 is
+	generic (
+		Domain : integer := 1;
+		Cin : real := 4.8e-15;
+		Cpd : real := 28.9e-15; 
+		pleack : real := 1.16e-9;
+		Area : real := 1.7
+		);
+	port ( 
+	  --pragma synthesis_off
+	  vcc : in real;
+	 --pragma synthesis_on
+	 a,b : in std_logic;
+	 O : out  std_logic );
+begin
+	PM.monitorInput(o, Cpd, Vcc, Domain);
+	PM.monitorInput(a, Cin, Vcc, Domain);
+	PM.monitorInput(b, Cin, Vcc, Domain);
+	AM.addArea(Area,Domain);
+	PM.addLeackage(pleack,1);
+end entity;
 
-port (a,b: in  std_logic;      
-      F: out std_logic;           
-      consum : out real := 0.0);
-end and2;    
 
 
-
-architecture primitive of and2 is   
-	
-signal nr_comutari : real :=0.0;
-signal Fintern : std_logic;
+architecture primitiv of and2 is
+begin
+	O <= (a and b);
+end architecture;
 
 begin
   
-   Fintern <= a and b ;                    
+   ointern <= a and b ;                    
                                      
 
-	process (Fintern)
+	process (ointern)
  	begin
 		nr_comutari <= nr_comutari + 1.0;
 	end process;
 
 	consum <= c_comutat * nr_comutari;
 
-	F <= Fintern after 1 ns;
+	o <= ointern after 1 ns;
 
 end primitive;    
 
@@ -395,14 +409,14 @@ architecture structural of clock_gate is
 
 component and2 
 port (a,b: in  std_logic;     
-      F: out std_logic;            
+      o: out std_logic;            
       consum : out real := 0.0);
 end component;  
 
 signal consum1: real;
 
 begin 
-U2: and2 port map ( A => Enable, B => CLKin, F=> CLKout, consum => consum1);
+U2: and2 port map ( A => Enable, B => CLKin, o=> CLKout, consum => consum1);
 
 consum <= consum1 ;
 end architecture;
@@ -423,7 +437,7 @@ architecture structural of LatchD is
 
 component nand3 
 port (a,b,c: in  std_logic;     
-      F: out std_logic;            
+      o: out std_logic;            
       consum : out real := 0.0);
 end component;   
  
@@ -433,12 +447,12 @@ signal consum1,consum2,consum3,consum4,consum5,consum6: real;
 
 begin
 
-U1:nand3 port map (a=> PRE, b=> U4out, c=>  U2out, F=> U1out, consum=> consum1);
-U2:nand3 port map (a=> U1out, b=> CLR, c=>  CLK, F=> U2out, consum=> consum2);
-U3:nand3 port map (a=> U2out, b=> CLK, c=>  U4out, F=> U3out, consum=> consum3);
-U4:nand3 port map (a=> U3out, b=> CLR, c=>  D, F=> U4out, consum=> consum4);
-U5:nand3 port map (a=> PRE, b=> U2out, c=>  U6out, F=> U5out, consum=> consum5);
-U6:nand3 port map (a=> U5out, b=> CLR, c=>  U3out, F=> U6out, consum=> consum6);
+U1:nand3 port map (a=> PRE, b=> U4out, c=>  U2out, o=> U1out, consum=> consum1);
+U2:nand3 port map (a=> U1out, b=> CLR, c=>  CLK, o=> U2out, consum=> consum2);
+U3:nand3 port map (a=> U2out, b=> CLK, c=>  U4out, o=> U3out, consum=> consum3);
+U4:nand3 port map (a=> U3out, b=> CLR, c=>  D, o=> U4out, consum=> consum4);
+U5:nand3 port map (a=> PRE, b=> U2out, c=>  U6out, o=> U5out, consum=> consum5);
+U6:nand3 port map (a=> U5out, b=> CLR, c=>  U3out, o=> U6out, consum=> consum6);
  Q <= U5out;
  Qbar <= U6out;
 consum <= consum1+consum2+consum3+consum4+consum5+consum6;
@@ -449,34 +463,50 @@ end architecture;
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity nand3 is                 
-generic (c_comutat : real := 1.0e-8 );
+library IEEE;
+use IEEE.std_logic_1164.all;
+use work.pmonitor.all;
 
-port (a,b,c: in  std_logic;      
-      F: out std_logic;           
-      consum : out real := 0.0);
-end nand3;    
-
-
-
-architecture primitive of nand3 is   
-	
-signal nr_comutari : real :=0.0;
-signal Fintern : std_logic;
+entity nand3 is
+	generic (
+		Domain : integer := 1;
+		Cin : real := 5.0e-15;
+		Cpd : real := 7.77e-15;
+		pleack : real := 0.9e-9;
+		Area : real := 1.7
+		);
+	port ( 
+	  --pragma synthesis_off
+	  vcc : in real;
+	 --pragma synthesis_on
+	 a,b,c : in std_logic;
+	 O : out  std_logic );
+begin
+	PM.monitorInput(o, Cpd, Vcc, Domain);
+	PM.monitorInput(a, Cin, Vcc, Domain);
+	PM.monitorInput(b, Cin, Vcc, Domain);
+	PM.monitorInput(c, Cin, Vcc, Domain);
+	AM.addArea(Area,Domain);
+	PM.addLeackage(pleack,1);
+end entity;
+architecture primitiv of nand3 is
+begin
+	O <= not (a and b and c);
+end architecture;
 
 begin
   
-   Fintern <= not (a and b and c);                    
+   ointern <= not (a and b and c);                    
                                      
 
-	process (Fintern)
+	process (ointern)
  	begin
 		nr_comutari <= nr_comutari + 1.0;
 	end process;
 
 	consum <= c_comutat * nr_comutari;
 
-	F <= Fintern after 1 ns;
+	o <= ointern after 1 ns;
 
 end primitive;    
 
@@ -502,7 +532,7 @@ architecture Behavior of ShiftN is
 	generic (c_comutat : real := 1.0e-8 );
 
 	port ( a: in std_logic;
-		   F: out std_logic;
+		   o: out std_logic;
 			Consum: out real := 0.0);
 	end component;
 	
@@ -522,7 +552,7 @@ architecture Behavior of ShiftN is
 
 begin
 
-U1 : inv port map (a => DIR, F => DirN, consum =>consum1);
+U1 : inv port map (a => DIR, o => DirN, consum =>consum1);
 U2 : shift_cell port map ( CLK => CLK, CLR => CLR, Dir => DIR, DirN => DirN, SH => SH, LD => LD, SR => Sin, SL => Q(2), D=> D(3), Q=>Q(3), consum => consum2);
 U3 : shift_cell port map ( CLK => CLK, CLR => CLR, Dir => DIR, DirN => DirN, SH => SH, LD => LD, SR => Q(3), SL => Q(1), D=> D(2), Q=>Q(2), consum => consum3);
 U4 : shift_cell port map ( CLK => CLK, CLR => CLR, Dir => DIR, DirN => DirN, SH => SH, LD => LD, SR => Q(2), SL =>  Q(0), D=> D(1), Q=>Q(1), consum => consum4);
@@ -536,34 +566,49 @@ end architecture;
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity inv is                 
-generic (c_comutat : real := 1.0e-8 );
+library IEEE;
+use IEEE.std_logic_1164.all;
+use work.pmonitor.all;
 
-port (a: in  std_logic;      
-      F: out std_logic;           
-      consum : out real := 0.0);
-end inv;    
+entity inv1 is
+	generic (
+		Domain : integer := 1;
+		Cin : real := 3.5e-15;
+		Cpd : real := 3.95e-15;
+		pleack : real := 0.35e-9;
+		Area : real := 1.0
+		);
+	port ( 
+	  --pragma synthesis_off
+	  vcc : in real;
+	 --pragma synthesis_on
+	 a : in std_logic;
+	 O : out  std_logic );
+begin
+	PM.monitorInput(o, Cpd, Vcc, Domain);
+	PM.monitorInput(a, Cin, Vcc, Domain);
+	AM.addArea(Area,Domain);
+	PM.addLeackage(pleack,1);
+end entity;
+architecture primitiv of inv1 is
+begin
+	O <= not a;
+end architecture;
 
-
-
-architecture primitive of inv is   
-	
-signal nr_comutari : real :=0.0;
-signal Fintern : std_logic;
 
 begin
   
-   Fintern <= not a ;                    
+   ointern <= not a ;                    
                                     
 
-	process (Fintern)
+	process (ointern)
  	begin
 		nr_comutari <= nr_comutari + 1.0;
 	end process;
 
 	consum <= c_comutat * nr_comutari;
 
-	F <= Fintern;
+	o <= ointern;
 
 end primitive;    
 
@@ -586,7 +631,7 @@ component  and3
 generic (c_comutat : real := 1.0e-8 );
 
 port (a,b,c: in  std_logic;      
-      F: out std_logic;           
+      o: out std_logic;           
       consum : out real := 0.0);
 end component;
 
@@ -594,7 +639,7 @@ component  and2
 generic (c_comutat : real := 1.0e-8 );
 
 port (a,b: in  std_logic;      
-      F: out std_logic;           
+      o: out std_logic;           
       consum : out real := 0.0);
 end component;
 
@@ -602,7 +647,7 @@ component nor2
 generic (c_comutat : real := 1.0e-8 );
 
 port (a,b: in  std_logic;      
-      F: out std_logic;           
+      o: out std_logic;           
       consum : out real := 0.0);
 end component;
 
@@ -610,7 +655,7 @@ component or4
 generic (c_comutat : real := 2.5e-8 );
 
 port (a,b,c,d: in  std_logic;      
-      F: out std_logic;           
+      o: out std_logic;           
       consum : out real := 0.0);
 end component;
 
@@ -618,7 +663,7 @@ component inv is
 generic (c_comutat : real := 1.0e-8 );
 
 port ( a: in std_logic;
-       F: out std_logic;
+       o: out std_logic;
         Consum: out real := 0.0);
 end component;
 
@@ -633,12 +678,12 @@ signal consum1, consum2, consum3, consum4, consum5, consum6, consum7 : real;
 
 begin
 
-	U1: and3 port map (a=>SR, b=>SH, c=>DIRN,F=>R, consum=>consum1 );
-	U2: and3 port map (a=>SL, b=>SH, c=>DIR,F=>L, consum=>consum2);
-	U3: and2 port map (a=>LD, b=>D, F=>LOAD, consum=>consum3 );
-	U4: nor2 port map (a=> LD, b => SH, F => Hold, consum => consum4);
-	U5: and2 port map  (a=> Hold, b => Q, F => Qold, consum => consum5);
-	U6: or4 port map (a=>R, b=>L, c=> LOAD, d => Qold, F=>DLatch,consum=>consum6);
+	U1: and3 port map (a=>SR, b=>SH, c=>DIRN,o=>R, consum=>consum1 );
+	U2: and3 port map (a=>SL, b=>SH, c=>DIR,o=>L, consum=>consum2);
+	U3: and2 port map (a=>LD, b=>D, o=>LOAD, consum=>consum3 );
+	U4: nor2 port map (a=> LD, b => SH, o => Hold, consum => consum4);
+	U5: and2 port map  (a=> Hold, b => Q, o => Qold, consum => consum5);
+	U6: or4 port map (a=>R, b=>L, c=> LOAD, d => Qold, o=>DLatch,consum=>consum6);
 	U7: latchD port map (D=>DLatch  , Q=> Q, CLK=> CLK, CLR => CLR, PRE => '1', consum=> consum7);
 
 	consum<=consum1+consum2+consum3+consum4+consum5+consum6+consum7;
@@ -649,34 +694,51 @@ end architecture;
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity and3 is                 
-generic (c_comutat : real := 1.0e-8 );
+library IEEE;
+use IEEE.std_logic_1164.all;
+use work.pmonitor.all;
 
-port (a,b,c: in  std_logic;      
-      F: out std_logic;           
-      consum : out real := 0.0);
-end and3;    
+entity and3 is
+	generic (
+		Domain : integer := 1;
+		Cin : real := 4.9e-15;
+		Cpd : real := 38.7e-15;
+		pleack : real := 1.62e-9;
+		Area : real := 2.0
+		);
+	port ( 
+	  --pragma synthesis_off
+	  vcc : in real;
+	 --pragma synthesis_on
+	 a,b,c : in std_logic;
+	 O : out  std_logic );
+begin
+	PM.monitorInput(o, Cpd, Vcc, Domain);
+	PM.monitorInput(a, Cin, Vcc, Domain);
+	PM.monitorInput(b, Cin, Vcc, Domain);
+	PM.monitorInput(c, Cin, Vcc, Domain);
+	AM.addArea(Area,Domain);
+	PM.addLeackage(pleack,1);
+end entity;
+architecture primitiv of and3 is
+begin
+	O <= (a and b and c);
+end architecture;
 
-
-
-architecture primitive of and3 is   
-	
-signal nr_comutari : real :=0.0;
-signal Fintern : std_logic;
 
 begin
   
-   Fintern <= a and b and c;                    
+   ointern <= a and b and c;                    
                                      
 
-	process (Fintern)
+	process (ointern)
  	begin
 		nr_comutari <= nr_comutari + 1.0;
 	end process;
 
 	consum <= c_comutat * nr_comutari;
 
-	F <= Fintern after 1 ns;
+	o <= ointern after 1 ns;
 
 end primitive;    
 
@@ -686,34 +748,50 @@ use ieee.std_logic_1164.all;
 
 
 
-entity nor2 is                 
-generic (c_comutat : real := 1.0e-8 );
+library IEEE;
+use IEEE.std_logic_1164.all;
+use work.pmonitor.all;
 
-port (a,b: in  std_logic;      
-      F: out std_logic;           
-      consum : out real := 0.0);
-end nor2;    
+entity nor2 is
+	generic (
+		Domain : integer := 1;
+		Cin : real := 5.0e-15;
+		Cpd : real := 7.0e-15;
+		pleack : real := 0.69e-9;
+		Area : real := 1.3
+		);
+	port ( 
+	  --pragma synthesis_off
+	  vcc : in real;
+	 --pragma synthesis_on
+	 a,b : in std_logic;
+	 O : out  std_logic );
+begin
+	PM.monitorInput(o, Cpd, Vcc, Domain);
+	PM.monitorInput(a, Cin, Vcc, Domain);
+	PM.monitorInput(b, Cin, Vcc, Domain);
+	AM.addArea(Area,Domain);
+	PM.addLeackage(pleack,1);
+end entity;
+architecture primitiv of nor2 is
+begin
+	O <= not (a or b);
+end architecture;
 
-
-
-architecture primitive of nor2 is   
-	
-signal nr_comutari : real :=0.0;
-signal Fintern : std_logic;
 
 begin
   
-   Fintern <= a nor b ;                    
+   ointern <= a nor b ;                    
                                      
 
-	process (Fintern)
+	process (ointern)
  	begin
 		nr_comutari <= nr_comutari + 1.0;
 	end process;
 
 	consum <= c_comutat * nr_comutari;
 
-	F <= Fintern after 1 ns;
+	o <= ointern after 1 ns;
 
 end primitive;    
 
@@ -724,34 +802,51 @@ use ieee.std_logic_1164.all;
 
 
 
-entity or4 is                 
-generic (c_comutat : real := 1.0e-8 );
+library IEEE;
+use IEEE.std_logic_1164.all;
+use work.pmonitor.all;
 
-port (a,b,c,d: in  std_logic;      
-      F: out std_logic;           
-      consum : out real := 0.0);
-end or4;    
+entity or3 is
+	generic (
+		Domain : integer := 1;
+		Cin : real := 4.4e-15;
+		Cpd : real := 30.7e-15;
+		pleack: real := 1.39e-12;
+		Area : real := 2.0
+		);
+	port ( 
+	  --pragma synthesis_off
+	  vcc : in real;
+	 --pragma synthesis_on
+	 a,b,c : in std_logic;
+	 O : out  std_logic );
+begin
+	PM.monitorInput(o, Cpd, Vcc, Domain);
+	PM.monitorInput(a, Cin, Vcc, Domain);
+	PM.monitorInput(b, Cin, Vcc, Domain);
+	PM.monitorInput(c, Cin, Vcc, Domain);
+	AM.addArea(Area,Domain);
+	PM.addLeackage(pleack,1);
+end entity;
+architecture primitiv of or3 is
+begin
+	O <= (a or b or c);
+end architecture;
 
-
-
-architecture primitive of or4 is   
-	
-signal nr_comutari : real :=0.0;
-signal Fintern : std_logic;
 
 begin
   
-   Fintern <= a or b or c or d;                    
+   ointern <= a or b or c or d;                    
                                     
 
-	process (Fintern)
+	process (ointern)
  	begin
 		nr_comutari <= nr_comutari + 1.0;
 	end process;
 
 	consum <= c_comutat * nr_comutari;
 
-	F <= Fintern;
+	o <= ointern;
 
 end primitive;    
 
