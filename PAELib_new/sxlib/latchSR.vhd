@@ -1,3 +1,11 @@
+----------------------------------------------------------------------------------
+-- Company: Technical University of Cluj Napoca
+-- Engineer: Rares Marincas, Botond Sandor Kirei
+-- Project Name: Power/Area Avare Modeling and Estimation
+-- Description: - sxlib standard libary cell file
+-- Dependencies: - PAECore.vhd
+-- Revision 0.01 - File Created
+----------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
 library work;
