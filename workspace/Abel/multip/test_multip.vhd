@@ -5,27 +5,38 @@ use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
 
 use work.components.all;
+use work.pmonitor.all; 
 
 entity Test_Mult8 is end;
 
-architecture Driver of Test_Mult8 is 
+architecture Driver of Test_Mult8 is
+ 
     component Mult8
-       port(A,B : in std_logic_Vector(3 downto 0);
-            Start : in std_logic;
-            CLK : in std_logic;
-            Reset : in std_logic;
-            Result: out std_logic_Vector(7 downto 0);
-            Done : out std_logic;
-	    consum: out real := 0.0);
+    generic ( Domain: integer := 1);
+	port (
+		--pragma synthesis_off
+		vcc : in real;
+		--pragma synthesis_on   
+		A,B : 	in std_logic_Vector(3 downto 0);
+		Start : in std_logic;
+		Clk : in std_logic;
+		Reset : in std_logic;
+		Result : out std_logic_Vector(7 downto 0);
+		Done : out std_logic );
      end component;
+     
     component Mult8CG
-       port(A,B : in std_logic_Vector(3 downto 0);
-            Start : in std_logic;
-            CLK : in std_logic;
-            Reset : in std_logic;
-            Result: out std_logic_Vector(7 downto 0);
-            Done : out std_logic;
-	    consum: out real := 0.0);
+    generic ( Domain: integer := 1);
+	port (
+		--pragma synthesis_off
+		vcc : in real;
+		--pragma synthesis_on   
+		A,B : 	in std_logic_Vector(3 downto 0);
+		Start : in std_logic;
+		Clk : in std_logic;
+		Reset : in std_logic;
+		Result : out std_logic_Vector(7 downto 0);
+		Done : out std_logic );
      end component;
 
      signal A,B : std_logic_Vector(3 downto 0);
@@ -33,14 +44,13 @@ architecture Driver of Test_Mult8 is
      signal CLK : std_logic ;
      signal Reset : std_logic;
      signal Result1, Result2 : std_logic_Vector ( 7 downto 0);
-     signal consum1, energie1, consum2, energie2 : real :=0.0;
 
 begin
  
-      UUT: Mult8 port map (A,B,Start,CLK,Reset,Result1, Done1, consum1);
-      UUT_CG: Mult8CG port map (A,B,Start,CLK,Reset,Result2, Done2, consum2);
+	UUT: Mult8 generic map (Domain => 1) port map (3.3,A,B,Start,CLK,Reset,Result1, Done1);
+	UUT_CG: Mult8CG generic map (Domain => 2) port map (3.3, A,B,Start,CLK,Reset,Result2, Done2);
 
- process
+	Clock_generation: process
 	begin
 		clk <= '0';
 		wait for 5 ns;
@@ -48,23 +58,29 @@ begin
 		wait for 5 ns;
 	end process;
 
-      Reset <= '0', '1' after 10 ns;
-      Stimulus:
-          process
-          begin
+	Reset <= '0', '1' after 10 ns;
+	Stimulus: process
+	begin
+		PM.RESETPOWER(1);
+		PM.RESETPOWER(2);
+		
 		wait until RESET = '1';
-              for i in 2 to 5 loop
-                   for j in 4 to 7 loop
-                       A <= Conv_std_logic_vector (i, A'Length );
-                       B <= Conv_std_logic_vector (j, B'Length ); 
-                       wait until CLK'Event and CLK='1';
-                       Start <='1', '0' after 20 ns;
-                       wait until Done1 ='1';
-                       wait until CLK'Event and CLK = '1';
-                    end loop;
-                end loop;
-           assert false report "End Simulation" severity failure;
-           end process;
-	energie1 <= 5.0*5.0*consum1*0.5;
-	energie2 <= 5.0*5.0*consum2*0.5;
+		for i in 2 to 5 loop
+			for j in 4 to 7 loop
+				A <= Conv_std_logic_vector (i, A'Length );
+				B <= Conv_std_logic_vector (j, B'Length ); 
+				wait until CLK'Event and CLK='1';
+				Start <='1', '0' after 20 ns;
+				wait until Done1 ='1';
+				assert (Result1 = Result2) report "product incorrect" severity error;
+				wait until CLK'Event and CLK = '1';
+			end loop;
+		end loop;
+		AM.REPORTAREA(1);
+		AM.REPORTAREA(2);
+		PM.REPORTPOWER(1);
+		PM.REPORTPOWER(2);
+		assert false report "End Simulation" severity failure;
+		end process;
+
   end; 

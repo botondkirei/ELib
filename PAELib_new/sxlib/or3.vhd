@@ -30,7 +30,7 @@ begin
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	PM.monitorInput(c, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of or3 is
 begin

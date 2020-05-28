@@ -28,7 +28,7 @@ begin
 	PM.monitorInput(o, Cpd, Vcc, Domain);
 	PM.monitorInput(a, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of buff is
 begin

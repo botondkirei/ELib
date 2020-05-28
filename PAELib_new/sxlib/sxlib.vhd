@@ -306,7 +306,7 @@ begin
 	PM.monitorInput(a, Cin, Vcc, Domain);
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of and2 is
 begin
@@ -345,7 +345,7 @@ begin
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	PM.monitorInput(c, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of and3 is
 begin
@@ -383,7 +383,7 @@ begin
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	PM.monitorInput(c, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of aoi21 is
 begin
@@ -422,7 +422,7 @@ begin
 	PM.monitorInput(c, Cin, Vcc, Domain);
 	PM.monitorInput(d, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of aoi22 is
 begin
@@ -510,7 +510,7 @@ begin
 	PM.monitorInput(o, Cpd, Vcc, Domain);
 	PM.monitorInput(a, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of buff is
 begin
@@ -545,7 +545,7 @@ begin
 	PM.monitorInput(o, Cpd, Vcc, Domain);
 	PM.monitorInput(a, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of inv1 is
 begin
@@ -644,7 +644,7 @@ begin
 	PM.monitorInput(a, Cin, Vcc, Domain);
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of nand2 is
 begin
@@ -690,7 +690,7 @@ begin
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	PM.monitorInput(c, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of nand3 is
 begin
@@ -729,7 +729,7 @@ begin
 	PM.monitorInput(c, Cin, Vcc, Domain);
 	PM.monitorInput(d, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of nand4 is
 begin
@@ -766,7 +766,7 @@ begin
 	PM.monitorInput(a, Cin, Vcc, Domain);
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of nor2 is
 begin
@@ -804,7 +804,7 @@ begin
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	PM.monitorInput(c, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of nor3 is
 begin
@@ -841,7 +841,7 @@ begin
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	PM.monitorInput(c, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of oai21 is
 begin
@@ -878,7 +878,7 @@ begin
 	PM.monitorInput(a, Cin, Vcc, Domain);
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of or2 is
 begin
@@ -916,7 +916,7 @@ begin
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	PM.monitorInput(c, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of or3 is
 begin
@@ -968,7 +968,7 @@ begin
 	PM.monitorInput(a, Cin, Vcc, Domain);
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of and2 is
 begin
@@ -1007,7 +1007,7 @@ begin
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	PM.monitorInput(c, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of and3 is
 begin
@@ -1045,7 +1045,7 @@ begin
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	PM.monitorInput(c, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of aoi21 is
 begin
@@ -1084,7 +1084,7 @@ begin
 	PM.monitorInput(c, Cin, Vcc, Domain);
 	PM.monitorInput(d, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of aoi22 is
 begin
@@ -1172,7 +1172,7 @@ begin
 	PM.monitorInput(o, Cpd, Vcc, Domain);
 	PM.monitorInput(a, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of buff is
 begin
@@ -1207,7 +1207,7 @@ begin
 	PM.monitorInput(o, Cpd, Vcc, Domain);
 	PM.monitorInput(a, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of inv1 is
 begin
@@ -1306,7 +1306,7 @@ begin
 	PM.monitorInput(a, Cin, Vcc, Domain);
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of nand2 is
 begin
@@ -1352,7 +1352,7 @@ begin
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	PM.monitorInput(c, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of nand3 is
 begin
@@ -1391,7 +1391,7 @@ begin
 	PM.monitorInput(c, Cin, Vcc, Domain);
 	PM.monitorInput(d, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of nand4 is
 begin
@@ -1428,7 +1428,7 @@ begin
 	PM.monitorInput(a, Cin, Vcc, Domain);
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of nor2 is
 begin
@@ -1466,7 +1466,7 @@ begin
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	PM.monitorInput(c, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of nor3 is
 begin
@@ -1503,7 +1503,7 @@ begin
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	PM.monitorInput(c, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of oai21 is
 begin
@@ -1540,7 +1540,7 @@ begin
 	PM.monitorInput(a, Cin, Vcc, Domain);
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of or2 is
 begin
@@ -1578,7 +1578,7 @@ begin
 	PM.monitorInput(b, Cin, Vcc, Domain);
 	PM.monitorInput(c, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of or3 is
 begin

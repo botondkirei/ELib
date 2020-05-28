@@ -31,7 +31,7 @@ begin
 	PM.monitorInput(c, Cin, Vcc, Domain);
 	PM.monitorInput(d, Cin, Vcc, Domain);
 	AM.addArea(Area,Domain);
-	PM.addLeackage(pleack,1);
+	PM.addLeackage(pleack,Domain);
 end entity;
 architecture primitiv of aoi22 is
 begin

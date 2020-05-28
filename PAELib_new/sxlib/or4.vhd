@@ -10,19 +10,19 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use work.pmonitor.all;
 
-entity nor3 is
+entity or4 is
 	generic (
 		Domain : integer := 1;
-		Cin : real := 5.0e-15;
-		Cpd : real := 8.1e-15;
-		pleack: real := 0.81e-12;
-		Area : real := 1.7
+		Cin : real := 4.2e-15;
+		Cpd : real := 31.6e-15;
+		pleack: real := 1.5e-12;
+		Area : real := 2.3
 		);
 	port ( 
 	  --pragma synthesis_off
 	  vcc : in real;
 	 --pragma synthesis_on
-	 a,b,c : in std_logic;
+	 a,b,c,d : in std_logic;
 	 O : out  std_logic );
 begin
 	PM.monitorInput(o, Cpd, Vcc, Domain);
@@ -32,7 +32,7 @@ begin
 	AM.addArea(Area,Domain);
 	PM.addLeackage(pleack,Domain);
 end entity;
-architecture primitiv of nor3 is
+architecture primitiv of or4 is
 begin
-	O <= not (a or b or c);
+	O <= (a or b or c or d);
 end architecture;
