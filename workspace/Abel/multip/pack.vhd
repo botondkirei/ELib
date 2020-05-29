@@ -2,7 +2,6 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 --use IEEE.std_logic_unsigned.all;
 
-
 package Components is
 
 component full_adder 
@@ -46,7 +45,7 @@ component clock_gate
         CLKout: out std_logic);
 end component;
 
-component LatchD is
+component BistD is
  	generic ( Domain: integer := 1);
  	port (
 		--pragma synthesis_off
@@ -56,7 +55,7 @@ component LatchD is
         Q, Qbar: out std_logic);
 end component;
 
-component ShiftN is 
+component Shift4 is 
 	generic ( Domain: integer := 1);
   	port (
 		--pragma synthesis_off
@@ -130,6 +129,8 @@ Cout <= C4;
 
 end architecture;
 
+----------------------------------------------------------------------
+----------------------------------------------------------------------
 
 library IEEE;
 use IEEE.std_logic_1164.all;
@@ -153,9 +154,9 @@ begin
 	LDM <= '1' when State = InitS else '0' ;
 	LDHI<= '1' when State = addS else '0' ;
 	LDLO <= '1' when State = InitS else '0' ;
-        SHHI <= '1' when State = ShiftS else '0' ;
-        SHLO <= '1' when State = ShiftS else '0' ;
-        CLRHI <= '0' when state = Inits else  '1';
+    SHHI <= '1' when State = ShiftS else '0' ;
+	SHLO <= '1' when State = ShiftS else '0' ;
+	CLRHI <= '0' when state = Inits else  '1';
 	Done <= '1' when State = DoneS else '0' ;
 	CG_EN <= '0' when State = Checks or State = Dones or state = adds else '1';
 -- Determine Next State from control inputs--
@@ -165,9 +166,11 @@ StateMachine :
 		if CLK'Event and CLK = '0' then
 			case State is
 				when Inits =>
-					if Start = '1' then state <= checks;
-                                        else state <= initS;
-                                         end if;
+					if Start = '1' then 
+						state <= checks;
+					else 
+						state <= initS;
+					end if;
 				when Checks  =>
 					if LSB = '1' then
 						State <=  AddS ;
@@ -178,25 +181,28 @@ StateMachine :
 				when Adds =>
 					State <= Shifts;
 				when ShiftS => 
-					if counter = 4 then State <= DoneS;
-                                        else state <= checks;
-				         end if;
+					if counter = 4 then 
+						State <= DoneS;
+					else 
+						state <= checks;
+					end if;
 				when DoneS => state <= InitS;
 			end case;
 		end if;
 	end process;
 
-     process (CLK)
-           begin 
-                if (rising_edge (CLK)) then 
-                     if (state = inits) then counter <= 0;
-                     elsif state = checks then counter <= counter + 1;
-                      end if;
-                end if;
+	process (CLK)
+	begin 
+		if (rising_edge (CLK)) then 
+			if (state = inits) then 
+				counter <= 0;
+			elsif state = checks then 
+				counter <= counter + 1;
+			end if;
+		end if;
     end process;
 
 end;	
-
 
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
@@ -303,7 +309,7 @@ end architecture;
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity LatchD is
+entity BistD is
 	generic ( Domain: integer := 1);
 	port (
         --pragma synthesis_off
@@ -312,9 +318,9 @@ entity LatchD is
         PRE, CLR, CLK, D : in  std_logic; 
         Q, Qbar: out std_logic);
 
-end entity LatchD;
+end entity BistD;
 
-architecture structural of LatchD is 
+architecture structural of BistD is 
 
 	component nand3              
 	generic ( Domain: integer := 1);
@@ -329,12 +335,12 @@ architecture structural of LatchD is
 	signal U1out,U2out,U3out,U4out,U5out,U6out : std_logic;
 
 begin
-
+	-- implemenation using the edge triggered D type flip flop 74xx74
 	U1:nand3 generic map (Domain => Domain) port map (a=> PRE, b=> U4out, c=>  U2out, o=> U1out, vcc => 3.3);
 	U2:nand3 generic map (Domain => Domain) port map (a=> U1out, b=> CLR, c=>  CLK, o=> U2out, vcc => 3.3);
 	U3:nand3 generic map (Domain => Domain) port map (a=> U2out, b=> CLK, c=>  U4out, o=> U3out, vcc => 3.3);
 	U4:nand3 generic map (Domain => Domain) port map (a=> U3out, b=> CLR, c=>  D, o=> U4out, vcc => 3.3);
-	U5:nand3 generic map (Domain => Domain) port map (a=> PRE, b=> U2out, c=>  U6out, o=> U5out, vcc => 3.3);
+	U5:nand3 generic map (Domain => Domain) port map (a=> PRE, b => U2out, c=>  U6out, o=> U5out, vcc => 3.3);
 	U6:nand3 generic map (Domain => Domain) port map (a=> U5out, b=> CLR, c=>  U3out, o=> U6out, vcc => 3.3);
 	Q <= U5out;
 	Qbar <= U6out;
@@ -349,7 +355,7 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;  
 use ieee.std_logic_unsigned.all; 
 
-entity ShiftN is 
+entity Shift4 is 
 	generic ( Domain: integer := 1);
 	port (
           --pragma synthesis_off
@@ -363,7 +369,7 @@ entity ShiftN is
           Q : inout std_logic_Vector(3 downto 0));
 end entity;
 
-architecture Behavior of ShiftN is
+architecture Behavior of Shift4 is
 
 
 	component inv1              
@@ -473,7 +479,7 @@ architecture structural of shift_cell is
 		  o: out std_logic);
 	end component ;
 
-	component latchD --.//slxlib/bistD -- de discutat
+	component BistD --.//slxlib/bistD -- de discutat
 	generic ( Domain: integer := 1);
 	port ( 
 		--pragma synthesis_off
@@ -493,8 +499,38 @@ begin
 	U4: nor2 generic map (Domain => Domain) port map (a=> LD, b => SH, o => Hold, vcc => 3.3 );
 	U5: and2 generic map (Domain => Domain) port map  (a=> Hold, b => Q, o => Qold, vcc => 3.3 );
 	U6: or4 generic map (Domain => Domain) port map (a=>R, b=>L, c=> LOAD, d => Qold, o=>DLatch, vcc => 3.3 );
-	U7: latchD generic map (Domain => Domain) port map (D=>DLatch  , Q=> Q, CLK=> CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
+	U7: BistD generic map (Domain => Domain) port map (D=>DLatch  , Q=> Q, CLK => CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
 
+end architecture;
+
+
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+
+
+library IEEE;
+use ieee.std_logic_1164.all; 
+
+entity ....
+
+end entity;
+
+architecture ...
+
+	component bistD
+	
+	component ...
+	
+	signal C1, C2, c3....
+	
+begin
+	
+	bist1 : bistD port map ....
+	bist2 : bistD port map ....
+	bist2 : bistD port map ....
+	
+	poarta1: and2 port map ...
+	
 end architecture;
 
 
