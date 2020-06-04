@@ -589,15 +589,25 @@ end entity;
 
 architecture Test of Test_Counter is
 
-	component Counter ...
+	component Counter 
 	
+	port(a,b : in std_logic_Vector(2 downto 0);
+		Start : in std_logic;
+        CLK : in std_logic;
+        init : in std_logic;
+        check : in std_logic;
+        Result: out std_logic_Vector(2 downto 0);
+        Done:out std_logic;
+      );
+    end component;
+        
 	signal clk, init, check : std_logic;
 	
 	signal count : std_logic_vector(2 downto 0);
 
 begin
 
-	instanta_counter : counter port map ( ...
+	instanta_counter : counter port map (a,b,CLK,init,check,Start,Result,Done);
 	
 	generare_semnal_tact: process
 	begin
