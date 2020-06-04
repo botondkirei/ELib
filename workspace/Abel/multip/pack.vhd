@@ -91,8 +91,8 @@ end Components;
 
 library ieee;  
 use ieee.std_logic_1164.all;  
-use ieee.std_logic_arith.all;  
-use ieee.std_logic_unsigned.all; 
+--use ieee.std_logic_arith.all;  
+--use ieee.std_logic_unsigned.all; 
  
 entity adder4 is  
 	generic ( Domain: integer := 1);
@@ -209,8 +209,8 @@ end;
 
 library ieee;  
 use ieee.std_logic_1164.all;  
-use ieee.std_logic_arith.all;  
-use ieee.std_logic_unsigned.all; 
+--use ieee.std_logic_arith.all;  
+--use ieee.std_logic_unsigned.all; 
 
 entity full_adder is
 	generic ( Domain: integer := 1);
@@ -317,7 +317,6 @@ entity BistD is
         --pragma synthesis_on
         PRE, CLR, CLK, D : in  std_logic; 
         Q, Qbar: out std_logic);
-
 end entity BistD;
 
 architecture structural of BistD is 
@@ -352,8 +351,8 @@ end architecture;
 
 library ieee;  
 use ieee.std_logic_1164.all;  
-use ieee.std_logic_arith.all;  
-use ieee.std_logic_unsigned.all; 
+--use ieee.std_logic_arith.all;  
+--use ieee.std_logic_unsigned.all; 
 
 entity Shift4 is 
 	generic ( Domain: integer := 1);
@@ -511,69 +510,107 @@ end architecture;
 library IEEE;
 use ieee.std_logic_1164.all; 
 
-entity BistabileleD
+entity Counter is
 generic ( Domain: integer := 1);
 	port (
         vcc : in real;
+        CLK, init, check : in  std_logic; 
+        Q : out std_logic_vector(2 downto 0));
+end entity Counter;
+
+architecture structural of Counter is
+
+	
+	component inv1              
+	generic ( Domain: integer := 1);
+	port (
+		  vcc : in real;
+		  a : in  std_logic;      
+		  o: out std_logic);
+	end component ;
+	
+	component or2              
+	generic ( Domain: integer := 1);
+	port (
+		  vcc : in real;
+		  a, b : in  std_logic;      
+		  o: out std_logic);
+	end component ;
+	
+	component and3              
+	generic ( Domain: integer := 1);
+	port (
+		  vcc : in real;
+		  a, b, c : in  std_logic;      
+		  o: out std_logic);
+	end component ;
+	
+	component bistD is
+		generic ( Domain: integer := 1);
+		port (
+        --pragma synthesis_off
+        vcc : in real;
+        --pragma synthesis_on
         PRE, CLR, CLK, D : in  std_logic; 
         Q, Qbar: out std_logic);
-end entity BistabileleD;
-
-architecture structural of BistabileleD
-
+    end component;
 	
-	component and4
-	
-	generic ( Domain: integer := 1);
-	port (
-		  vcc : in real;
-			a,b,c: in  std_logic;      
-		  o: out std_logic);
-	end component ;
-	
-	component and5
-	generic ( Domain: integer := 1);
-	port (
-		  vcc : in real;
-			a,b: in  std_logic;      
-		  o: out std_logic);
-	end component ;
-	
-	component or5
-	generic ( Domain: integer := 1);
-	port (
-		  vcc : in real;
-			a,b: in  std_logic;      
-		  o: out std_logic);
-	end component ;
-	
-	component inv2              
-	generic ( Domain: integer := 1);
-	port (
-		  vcc : in real;
-			a : in  std_logic;      
-		  o: out std_logic);
-	end component ;
-	
-	component inv3              
-	generic ( Domain: integer := 1);
-	port (
-		  vcc : in real;
-			b : in  std_logic;      
-		  o: out std_logic);
-	end component ;
-	signal C0, C1, C2: std_logic;
+	signal C: std_logic_vector(2 downto 0);
+	signal initn, checkn, c0n, net1, net2 : std_logic;
 	
 begin
 	
-	bist1 : bistD generic map (Domain => Domain) port map (D=>DLatch  , Q=> Q, CLK => CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
-	bist2 : bistD generic map (Domain => Domain) port map (D=>DLatch  , Q=> Q, CLK => CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
-	bist2 : bistD generic map (Domain => Domain) port map (D=>DLatch  , Q=> Q, CLK => CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
+	bist0 : bistD generic map (Domain => Domain) port map (D=>C(0)  , Q=> C(0), CLK => CLK, CLR => init, PRE => '1', vcc => 3.3 );
+	bist1 : bistD generic map (Domain => Domain) port map (D=>C(1)  , Q=> C(1), CLK => C(0), CLR => init, PRE => '1', vcc => 3.3 );
+	bist2 : bistD generic map (Domain => Domain) port map (D=>C(2)  , Q=> C(2), CLK => C(1), CLR => init, PRE => '1', vcc => 3.3 );
 	
-	poarta1: and2 port map
+	poarta1: or2 generic map (Domain => Domain) port map (a => net1, b => net2, o => C(0), vcc => 3.3);
+	poarta2: and3 generic map (Domain => Domain) port map (a => C(0), b => initn, c => checkn, o =>  net1, vcc => 3.3 );
+	poarta3: and3 generic map (Domain => Domain) port map (a => c0n, b => initn, c => check, o =>  net2, vcc => 3.3 );
+	
+	inversor1: inv1 generic map (Domain => Domain) port map (a => init, o => initn, vcc => 3.3 );
+	inversor2: inv1 generic map (Domain => Domain) port map (a => check, o => checkn, vcc => 3.3 );
+	inversor3: inv1 generic map (Domain => Domain) port map (a => C(0), o => c0n, vcc => 3.3 );
+	
 	
 end architecture;
 
+
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+
+
+
+library IEEE;
+use ieee.std_logic_1164.all; 
+
+entity Test_Counter is
+end entity;
+
+architecture Test of Test_Counter is
+
+	component Counter ...
+	
+	signal clk, init, check : std_logic;
+	
+	signal count : std_logic_vector(2 downto 0);
+
+begin
+
+	instanta_counter : counter port map ( ...
+	
+	generare_semnal_tact: process
+	begin
+		clk <= '0';
+		wait for 5 ns;
+		clk <= '1';
+		wait for 5 ns;
+	end process;
+	
+	init <= '0' , '1' after 50 ns;
+	check <= '1', '0' after 60 ns, '1' after 70 ns;
+	
+end architecture;
 
 
 		
