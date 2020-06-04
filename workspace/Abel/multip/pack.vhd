@@ -511,25 +511,66 @@ end architecture;
 library IEEE;
 use ieee.std_logic_1164.all; 
 
-entity ....
+entity BistabileleD
+generic ( Domain: integer := 1);
+	port (
+        vcc : in real;
+        PRE, CLR, CLK, D : in  std_logic; 
+        Q, Qbar: out std_logic);
+end entity BistabileleD;
 
-end entity;
+architecture structural of BistabileleD
 
-architecture ...
-
-	component bistD
 	
-	component ...
+	component and4
 	
-	signal C1, C2, c3....
+	generic ( Domain: integer := 1);
+	port (
+		  vcc : in real;
+			a,b,c: in  std_logic;      
+		  o: out std_logic);
+	end component ;
+	
+	component and5
+	generic ( Domain: integer := 1);
+	port (
+		  vcc : in real;
+			a,b: in  std_logic;      
+		  o: out std_logic);
+	end component ;
+	
+	component or5
+	generic ( Domain: integer := 1);
+	port (
+		  vcc : in real;
+			a,b: in  std_logic;      
+		  o: out std_logic);
+	end component ;
+	
+	component inv2              
+	generic ( Domain: integer := 1);
+	port (
+		  vcc : in real;
+			a : in  std_logic;      
+		  o: out std_logic);
+	end component ;
+	
+	component inv3              
+	generic ( Domain: integer := 1);
+	port (
+		  vcc : in real;
+			b : in  std_logic;      
+		  o: out std_logic);
+	end component ;
+	signal C0, C1, C2: std_logic;
 	
 begin
 	
-	bist1 : bistD port map ....
-	bist2 : bistD port map ....
-	bist2 : bistD port map ....
+	bist1 : bistD generic map (Domain => Domain) port map (D=>DLatch  , Q=> Q, CLK => CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
+	bist2 : bistD generic map (Domain => Domain) port map (D=>DLatch  , Q=> Q, CLK => CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
+	bist2 : bistD generic map (Domain => Domain) port map (D=>DLatch  , Q=> Q, CLK => CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
 	
-	poarta1: and2 port map ...
+	poarta1: and2 port map
 	
 end architecture;
 
