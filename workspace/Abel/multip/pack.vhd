@@ -589,16 +589,13 @@ end entity;
 
 architecture Test of Test_Counter is
 
-	component Counter 
+	component Counter  is
+	generic ( Domain: integer := 1);
+	port (
+        vcc : in real;
+        CLK, init, check : in  std_logic; 
+        Q : out std_logic_vector(2 downto 0));
 	
-	port(a,b : in std_logic_Vector(2 downto 0);
-		Start : in std_logic;
-        CLK : in std_logic;
-        init : in std_logic;
-        check : in std_logic;
-        Result: out std_logic_Vector(2 downto 0);
-        Done:out std_logic;
-      );
     end component;
         
 	signal clk, init, check : std_logic;
@@ -607,7 +604,7 @@ architecture Test of Test_Counter is
 
 begin
 
-	instanta_counter : counter port map (a,b,CLK,init,check,Start,Result,Done);
+	instanta_counter : counter port map (vcc => 3.3,clk=>clk,init=>init,check=>check,Q=>count);
 	
 	generare_semnal_tact: process
 	begin
@@ -619,7 +616,10 @@ begin
 	
 	init <= '0' , '1' after 50 ns;
 	check <= '1', '0' after 60 ns, '1' after 70 ns;
-	
+	process begin
+		wait for 1000 ns;
+		assert false report "end simulation" severity failure;
+		end process;
 end architecture;
 
 
