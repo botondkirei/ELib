@@ -1,38 +1,23 @@
 [*]
 [*] GTKWave Analyzer v3.3.61 (w)1999-2014 BSI
-[*] Fri May 08 12:18:39 2020
+[*] Fri Jun 05 23:32:52 2020
 [*]
-[dumpfile] "C:\Users\REBEABEL\Desktop\licenta\bun\github\ELib\workspace\Abel\multip\sim.vcd"
-[dumpfile_mtime] "Fri May 08 12:15:11 2020"
-[dumpfile_size] 3199959
-[savefile] "C:\Users\REBEABEL\Desktop\licenta\bun\github\ELib\workspace\Abel\multip\sim.gtkw"
+[dumpfile] "C:\Users\Botix\Desktop\ELib\workspace\Abel\multip\sim.vcd"
+[dumpfile_mtime] "Fri Jun 05 23:32:47 2020"
+[dumpfile_size] 47908
+[savefile] "C:\Users\Botix\Desktop\ELib\workspace\Abel\multip\sim.gtkw"
 [timestart] 0
-[size] 1280 961
-[pos] -165 -165
+[size] 1280 845
+[pos] -1 -1
 *-27.663544 108000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
-[sst_width] 197
+[sst_width] 211
 [signals_width] 126
 [sst_expanded] 1
 [sst_vpaned_height] 280
 @28
-test_mult8.clk
-@22
-test_mult8.a[3:0]
-test_mult8.b[3:0]
-@28
-test_mult8.start
-@24
-test_mult8.result1[7:0]
-test_mult8.result2[7:0]
-@28
-test_mult8.done1
-@29
-test_mult8.done2
-@28
-test_mult8.consum1
-test_mult8.consum2
-test_mult8.energie1
-test_mult8.energie2
-test_mult8.reset
+test_counter.check
+test_counter.clk
+test_counter.count[2:0]
+test_counter.init
 [pattern_trace] 1
 [pattern_trace] 0

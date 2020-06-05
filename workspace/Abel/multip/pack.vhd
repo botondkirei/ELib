@@ -310,7 +310,11 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 entity BistD is
-	generic ( Domain: integer := 1);
+	generic ( Domain: integer := 1 ;
+			  delay1 : time := 0.0 ns;
+			  delay2 : time := 0.1 ns;
+			  delay3 : time := 0.2 ns
+			  );
 	port (
         --pragma synthesis_off
         vcc : in real;
@@ -332,17 +336,24 @@ architecture structural of BistD is
 	end component ;    
 	 
 	signal U1out,U2out,U3out,U4out,U5out,U6out : std_logic;
+	signal U1outd,U2outd,U3outd,U4outd,U5outd,U6outd : std_logic;
 
 begin
 	-- implemenation using the edge triggered D type flip flop 74xx74
-	U1:nand3 generic map (Domain => Domain) port map (a=> PRE, b=> U4out, c=>  U2out, o=> U1out, vcc => 3.3);
-	U2:nand3 generic map (Domain => Domain) port map (a=> U1out, b=> CLR, c=>  CLK, o=> U2out, vcc => 3.3);
-	U3:nand3 generic map (Domain => Domain) port map (a=> U2out, b=> CLK, c=>  U4out, o=> U3out, vcc => 3.3);
-	U4:nand3 generic map (Domain => Domain) port map (a=> U3out, b=> CLR, c=>  D, o=> U4out, vcc => 3.3);
-	U5:nand3 generic map (Domain => Domain) port map (a=> PRE, b => U2out, c=>  U6out, o=> U5out, vcc => 3.3);
-	U6:nand3 generic map (Domain => Domain) port map (a=> U5out, b=> CLR, c=>  U3out, o=> U6out, vcc => 3.3);
-	Q <= U5out;
-	Qbar <= U6out;
+	U1:nand3 generic map (Domain => Domain) port map (a=> PRE, b=> U4outd, c=>  U2outd, o=> U1out, vcc => 3.3);
+	U1outd <= U1out after delay1;
+	U2:nand3 generic map (Domain => Domain) port map (a=> U1outd, b=> CLR, c=>  CLK, o=> U2out, vcc => 3.3);
+	U2outd <= U2out after delay2;
+	U3:nand3 generic map (Domain => Domain) port map (a=> U2outd, b=> CLK, c=>  U4outd, o=> U3out, vcc => 3.3);
+	U3outd <= U3out after delay3; 
+	U4:nand3 generic map (Domain => Domain) port map (a=> U3outd, b=> CLR, c=>  D, o=> U4out, vcc => 3.3);
+	U4outd <= U4out after delay2;
+	U5:nand3 generic map (Domain => Domain) port map (a=> PRE, b => U2outd, c=>  U6outd, o=> U5out, vcc => 3.3);
+	U5outd <= U5out after delay3;
+	U6:nand3 generic map (Domain => Domain) port map (a=> U5outd, b=> CLR, c=>  U3outd, o=> U6out, vcc => 3.3);
+	U6outd <= U6out after delay2;
+	Q <= U5outd;
+	Qbar <= U6outd;
 
 end architecture;
 
@@ -488,7 +499,7 @@ architecture structural of shift_cell is
 		Q, Qbar: out std_logic );
 	end component;
 
-signal R,L, Load, Dlatch, Hold,Qold: std_logic;
+signal R, Rd, L, Load, Dlatch, Hold,Qold: std_logic;
 
 begin
 
@@ -555,23 +566,24 @@ architecture structural of Counter is
         Q, Qbar: out std_logic);
     end component;
 	
-	signal C: std_logic_vector(2 downto 0);
-	signal initn, checkn, c0n, net1, net2 : std_logic;
+	signal C, Qint: std_logic_vector(2 downto 0);
+	signal initn, checkn, d0, c0n, net1, net2 : std_logic;
 	
 begin
 	
-	bist0 : bistD generic map (Domain => Domain) port map (D=>C(0)  , Q=> C(0), CLK => CLK, CLR => init, PRE => '1', vcc => 3.3 );
-	bist1 : bistD generic map (Domain => Domain) port map (D=>C(1)  , Q=> C(1), CLK => C(0), CLR => init, PRE => '1', vcc => 3.3 );
-	bist2 : bistD generic map (Domain => Domain) port map (D=>C(2)  , Q=> C(2), CLK => C(1), CLR => init, PRE => '1', vcc => 3.3 );
+	bist0 : bistD generic map (Domain => Domain) port map (D=>d0	, Q=> Qint(0), Qbar=> C(0), CLK => CLK, CLR => initn, PRE => '1', vcc => 3.3 );
+	bist1 : bistD generic map (Domain => Domain) port map (D=>C(1)  , Q=> Qint(1), Qbar=> C(1), CLK => C(0), CLR => initn, PRE => '1', vcc => 3.3 );
+	bist2 : bistD generic map (Domain => Domain) port map (D=>C(2)  , Q=> Qint(2), Qbar=> C(2), CLK => C(1), CLR => initn, PRE => '1', vcc => 3.3 );
 	
-	poarta1: or2 generic map (Domain => Domain) port map (a => net1, b => net2, o => C(0), vcc => 3.3);
-	poarta2: and3 generic map (Domain => Domain) port map (a => C(0), b => initn, c => checkn, o =>  net1, vcc => 3.3 );
-	poarta3: and3 generic map (Domain => Domain) port map (a => c0n, b => initn, c => check, o =>  net2, vcc => 3.3 );
+	poarta1: or2 generic map (Domain => Domain) port map (a => net1, b => net2, o => d0, vcc => 3.3);
+	poarta2: and3 generic map (Domain => Domain) port map (a => c0n, b => initn, c => checkn, o =>  net1, vcc => 3.3 );
+	poarta3: and3 generic map (Domain => Domain) port map (a => c(0), b => initn, c => check, o =>  net2, vcc => 3.3 );
 	
 	inversor1: inv1 generic map (Domain => Domain) port map (a => init, o => initn, vcc => 3.3 );
 	inversor2: inv1 generic map (Domain => Domain) port map (a => check, o => checkn, vcc => 3.3 );
 	inversor3: inv1 generic map (Domain => Domain) port map (a => C(0), o => c0n, vcc => 3.3 );
 	
+	Q <= Qint;
 	
 end architecture;
 
@@ -614,8 +626,8 @@ begin
 		wait for 5 ns;
 	end process;
 	
-	init <= '0' , '1' after 50 ns;
-	check <= '1', '0' after 60 ns, '1' after 70 ns;
+	init <= '1' , '0' after 55 ns;
+	check <= '1', '0' after 65 ns, '1' after 75 ns;
 	process begin
 		wait for 1000 ns;
 		assert false report "end simulation" severity failure;
