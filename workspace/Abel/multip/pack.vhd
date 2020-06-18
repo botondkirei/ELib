@@ -703,10 +703,10 @@ begin
 	
 --porti pt D1
 
-	
+	  
 poartaB: and3 generic map (Domain => Domain) port map (  a=> Qbar2,b=>Qbar0,c=Q1,o=>out_poarta_B, vcc => 3.3);
 poartaC: and3 generic map (Domain => Domain) port map (  a=> Q2,b=>Qbar0,c=Qbar1,o=>out_poarta_C, vcc => 3.3);
-D1: or2 generic map (Domain => Domain) port map (a=>out_poarta_B,b=>out_poarta_C,o =>out_poarta_D vcc =>3.3);
+D1: or2 generic map (Domain => Domain) port map (a=>out_poarta_B,b=>out_poarta_C,o =>out_poarta_D, vcc =>3.3);
 bist1 : bistD generic map (Domain => Domain) port map (D=>out_poarta_D	, Q=>Q2 , Qbar=>Qbar1 , CLK => CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
 
 
