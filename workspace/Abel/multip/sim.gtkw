@@ -1,23 +1,46 @@
 [*]
 [*] GTKWave Analyzer v3.3.61 (w)1999-2014 BSI
-[*] Fri Jun 05 23:32:52 2020
+[*] Thu Jun 18 19:05:20 2020
 [*]
 [dumpfile] "C:\Users\Botix\Desktop\ELib\workspace\Abel\multip\sim.vcd"
-[dumpfile_mtime] "Fri Jun 05 23:32:47 2020"
-[dumpfile_size] 47908
+[dumpfile_mtime] "Thu Jun 18 18:56:14 2020"
+[dumpfile_size] 58319
 [savefile] "C:\Users\Botix\Desktop\ELib\workspace\Abel\multip\sim.gtkw"
 [timestart] 0
 [size] 1280 845
 [pos] -1 -1
-*-27.663544 108000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-26.663544 66400000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] test_automat.
+[treeopen] test_automat.instanta_automat.
+[treeopen] test_automat.instanta_automat.bist1.
 [sst_width] 211
 [signals_width] 126
 [sst_expanded] 1
 [sst_vpaned_height] 280
 @28
-test_counter.check
-test_counter.clk
-test_counter.count[2:0]
-test_counter.init
+test_automat.clk
+test_automat.clr
+test_automat.count[2:0]
+test_automat.lsb
+test_automat.start
+test_automat.v
+@200
+-
+@28
+test_automat.instanta_automat.bist0.clk
+test_automat.instanta_automat.bist0.clr
+test_automat.instanta_automat.bist0.d
+test_automat.instanta_automat.bist0.pre
+test_automat.instanta_automat.bist0.q
+test_automat.instanta_automat.bist0.qbar
+@200
+-
+@29
+test_automat.instanta_automat.bist1.clk
+test_automat.instanta_automat.bist1.clr
+test_automat.instanta_automat.bist1.d
+test_automat.instanta_automat.bist1.pre
+test_automat.instanta_automat.bist1.q
+test_automat.instanta_automat.bist1.qbar
 [pattern_trace] 1
 [pattern_trace] 0

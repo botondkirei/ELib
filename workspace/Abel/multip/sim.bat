@@ -1,6 +1,7 @@
 ghdl -a --std=08 ../../../PAelib_new/pmonitor.vhd
 ghdl -a --std=08 ../../../PAelib_new/sxlib/inv1.vhd
 ghdl -a --std=08 ../../../PAelib_new/sxlib/and2.vhd
+ghdl -a --std=08 ../../../PAelib_new/sxlib/and4.vhd
 ghdl -a --std=08 ../../../PAelib_new/sxlib/or2.vhd
 ghdl -a --std=08 ../../../PAelib_new/sxlib/xor2.vhd
 ghdl -a --std=08 ../../../PAelib_new/sxlib/nor2.vhd
@@ -15,5 +16,5 @@ ghdl -a --ieee=synopsys --std=08 ./Multiplier8CG.vhd
 ghdl -a --ieee=synopsys --std=08 ./test_multip.vhd
 rem ghdl --elab-run --ieee=synopsys --std=08 Test_Mult8 --vcd=sim.vcd 
 ghdl --elab-run --ieee=synopsys --std=08 Test_automat --vcd=sim.vcd 
-rem gtkwave -A sim.vcd 
+gtkwave -A sim.vcd 
 pause

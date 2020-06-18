@@ -556,6 +556,7 @@ architecture structural of Counter is
 		  a, b, c : in  std_logic;      
 		  o: out std_logic);
 	end component ;
+
 	
 	component bistD is
 		generic ( Domain: integer := 1);
@@ -643,7 +644,7 @@ use ieee.std_logic_1164.all;
 	port (
          
            vcc : in real;
-           CLK,V,LSB,Start : in  std_logic;
+           CLK,CLR, V,LSB,Start : in  std_logic;
            Q2,Q1,Q0 : out  std_logic);
 end automat;
 architecture structural of automat is
@@ -664,16 +665,23 @@ architecture structural of automat is
 		  o: out std_logic);
 	end component ;
 	
-	
-component and2              
+	component and4              
 	generic ( Domain: integer := 1);
 	port (
-		--pragma synthesis_off
-		vcc : in real;
-		--pragma synthesis_on
-		a,b: in  std_logic;      
-		o: out std_logic);
-end component ;  
+		  vcc : in real;
+		  a, b, c, d : in  std_logic;      
+		  o: out std_logic);
+	end component ;	
+	
+	component and2              
+		generic ( Domain: integer := 1);
+		port (
+			--pragma synthesis_off
+			vcc : in real;
+			--pragma synthesis_on
+			a,b: in  std_logic;      
+			o: out std_logic);
+	end component ;  
 
 	
 	component bistD is
@@ -688,26 +696,27 @@ end component ;
 
 
 
-	signal  Q2,Q1,Q0,Qbar2,Qbar1,Qbar0 : std_logic;
+	--signal  Q2,Q1,Q0,Qbar2,Qbar1,Qbar0 : std_logic;
+	signal  Qbar2,Qbar1,Qbar0 : std_logic;
 	signal  out_poarta,out_poarta_A,out_poarta_B,out_poarta_C,out_poarta_D: std_logic;
 	signal out_poarta_1,out_poarta_2,out_poarta_3,out_poarta_4,out_poarta_5,out_poarta_6,out_poarta_7,out_poarta_8,out_poarta_9,out_poarta_10,out_poarta_11,out_poarta_12,out_poarta_13: std_logic;
 
 begin
-	 instanta_automat : automat port map (vcc => 3.3,CLK=>CLK,V=>V,LSB=>LSB,Start=>Start,Q2=>Q2,Q1=>Q1,Q0=>Q0);
+	 --instanta_automat : automat port map (vcc => 3.3,CLK=>CLK,V=>V,LSB=>LSB,Start=>Start,Q2=>Q2,Q1=>Q1,Q0=>Q0);
 	 
 	
 --porti pt D2
-    poarta: or2 generic map (Domain => Domain) port map (a=>V,b=>Q1,o=>out_poarta,vcc => 3.3 );
-	D2: and3 generic map (Domain => Domain) port map (  a=> Qbar0,b=>out_poarta,c=Q2,o=>out_poarta_A, vcc => 3.3);
-	bist2 : bistD generic map (Domain => Domain) port map (D=>out_poarta_A	, Q=>Q2 , Qbar=>Qbar1 , CLK => CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
+--    poarta: or2 generic map (Domain => Domain) port map (a=>V,b=>Q1,o=>out_poarta,vcc => 3.3 );
+	D2: and4 generic map (Domain => Domain) port map (  a=> Qbar0,b=>out_poarta,c=>Q2, d=>V, o=>out_poarta_A, vcc => 3.3);
+	bist2 : bistD generic map (Domain => Domain) port map (D=>out_poarta_A	, Q=>Q2 , Qbar=>Qbar2 , CLK => CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
 	
 --porti pt D1
 
 	  
-poartaB: and3 generic map (Domain => Domain) port map (  a=> Qbar2,b=>Qbar0,c=Q1,o=>out_poarta_B, vcc => 3.3);
-poartaC: and3 generic map (Domain => Domain) port map (  a=> Q2,b=>Qbar0,c=Qbar1,o=>out_poarta_C, vcc => 3.3);
+poartaB: and3 generic map (Domain => Domain) port map (  a=> Qbar2,b=>Qbar0,c=>Q1,o=>out_poarta_B, vcc => 3.3);
+poartaC: and3 generic map (Domain => Domain) port map (  a=> Q2,b=>Qbar0,c=>Qbar1,o=>out_poarta_C, vcc => 3.3);
 D1: or2 generic map (Domain => Domain) port map (a=>out_poarta_B,b=>out_poarta_C,o =>out_poarta_D, vcc =>3.3);
-bist1 : bistD generic map (Domain => Domain) port map (D=>out_poarta_D	, Q=>Q2 , Qbar=>Qbar1 , CLK => CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
+bist1 : bistD generic map (Domain => Domain) port map (D=>out_poarta_D	, Q=>Q1 , Qbar=>Qbar1 , CLK => CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
 
 
 --porti pt D0	 
@@ -725,18 +734,15 @@ poarta6: and2 generic map (Domain => Domain) port map (  a=> Q1,b=>Q2,o=>out_poa
 poarta7:and2 generic map (Domain => Domain) port map (  a=> out_poarta_1,b=>out_poarta_2,o=>out_poarta_7, vcc => 3.3);
 poarta8:and2 generic map (Domain => Domain) port map (  a=> out_poarta_3,b=>out_poarta_4,o=>out_poarta_8, vcc => 3.3);
 poarta9:and2 generic map (Domain => Domain) port map (  a=> out_poarta_5,b=>out_poarta_6,o=>out_poarta_9, vcc => 3.3);
-poarta10:and3 generic map (Domain => Domain) port map (  a=> Q0,b=>Q1,c=Qbar2,o=>out_poarta_10, vcc => 3.3);
+poarta10:and3 generic map (Domain => Domain) port map (  a=> Q0,b=>Q1,c=>Qbar2,o=>out_poarta_10, vcc => 3.3);
 
 poarta11:or2 generic map (Domain => Domain) port map (a=>out_poarta_7,b=>out_poarta_8,o=>out_poarta_11 ,vcc => 3.3 );
 poarta12:or2 generic map (Domain => Domain) port map (a=>out_poarta_9,b=>out_poarta_10,o=>out_poarta_12, vcc => 3.3 );
 
 D0: or2 generic map (Domain => Domain) port map (a=>out_poarta_11,b=>out_poarta_12,o=>out_poarta_13, vcc => 3.3 );
-bist0 : bistD generic map (Domain => Domain) port map (D=>out_poarta_13	, Q=>Q2 , Qbar=>Qbar1 , CLK => CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
+bist0 : bistD generic map (Domain => Domain) port map (D=>out_poarta_13	, Q=>Q0 , Qbar=>Qbar0 , CLK => CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
 	
 end architecture;
-
-
-
 
 
 library IEEE;
@@ -752,18 +758,18 @@ architecture Test of Test_automat is
 	port (
          
            vcc : in real;
-           CLK,V,LSB,Start : in  std_logic;
-           Q2,Q1,Q0 : out  std_logic);
+           CLK,CLR,V,LSB,Start : in  std_logic;
+           Q2, Q1, Q0 : out  std_logic);
     end component;
     
         
-	signal CLK,V,LSB,Start : std_logic;
+	signal CLK,CLR,V,LSB,Start : std_logic;
 	
 	signal count : std_logic_vector(2 downto 0);
 
 begin
 
-	instanta_automat : automat port map (vcc => 3.3,CLK=>CLK,V=>V,LSB=>LSB,Start=>Start,Q2=>count,Q1=>count,Q0=>count);
+	instanta_automat : automat port map (vcc => 3.3,CLK=>CLK,CLR=>CLR ,V=>V,LSB=>LSB,Start=>Start,Q2=>count(2),Q1=>count(1),Q0=>count(0));
 	
 	generare_semnal_tact: process
 	begin
@@ -773,8 +779,12 @@ begin
 		wait for 5 ns;
 	end process;
 	
-	init <= '1' , '0' after 55 ns;
-	check <= '1', '0' after 65 ns, '1' after 75 ns;
+	CLR <= '0', '1' after 10 ns;
+	
+	V <= '1' , '0' after 55 ns;
+	LSB <= '1', '0' after 105 ns, '1' after 115 ns;
+	START <= '0', '1' after 65 ns, '0' after 75 ns;
+	
 	process begin
 		wait for 1000 ns;
 		assert false report "end simulation" severity failure;
