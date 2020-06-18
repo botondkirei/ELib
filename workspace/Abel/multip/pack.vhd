@@ -172,7 +172,7 @@ StateMachine :
 						state <= initS;
 					end if;
 				when Checks  =>
-					if LSB = '1' then
+					if LSB = '1' then 
 						State <=  AddS ;
 					
 					else
@@ -191,17 +191,18 @@ StateMachine :
 		end if;
 	end process;
 
-	process (CLK)
-	begin 
-		if (rising_edge (CLK)) then 
-			if (state = inits) then 
-				counter <= 0;
-			elsif state = checks then 
-				counter <= counter + 1;
-			end if;
-		end if;
-    end process;
-
+---------------------------------------------------------
+	process (CLK)                          --
+	begin                                  --
+		if (rising_edge (CLK)) then        --
+			if (state = inits) then        --
+				counter <= 0;              -- de inclocuit cu counter
+			elsif state = checks then      --
+				counter <= counter + 1;    --
+			end if;                        --
+		end if;                            --
+    end process;                           --
+---------------------------------------------------------
 end;	
 
 ----------------------------------------------------------------------
@@ -635,5 +636,148 @@ begin
 end architecture;
 
 
-		
-   
+library IEEE;
+use ieee.std_logic_1164.all; 
+   entity automat is
+	generic ( Domain: integer := 1);
+	port (
+         
+           vcc : in real;
+           CLK,V,LSB,Start : in  std_logic;
+           Q2,Q1,Q0 : out  std_logic);
+end automat;
+architecture structural of automat is
+
+	component or2              
+	generic ( Domain: integer := 1);
+	port (
+		  vcc : in real;
+		  a, b : in  std_logic;      
+		  o: out std_logic);
+	end component ;
+	
+	component and3              
+	generic ( Domain: integer := 1);
+	port (
+		  vcc : in real;
+		  a, b, c : in  std_logic;      
+		  o: out std_logic);
+	end component ;
+	
+	
+component and2              
+	generic ( Domain: integer := 1);
+	port (
+		--pragma synthesis_off
+		vcc : in real;
+		--pragma synthesis_on
+		a,b: in  std_logic;      
+		o: out std_logic);
+end component ;  
+
+	
+	component bistD is
+		generic ( Domain: integer := 1);
+		port (
+        --pragma synthesis_off
+        vcc : in real;
+        --pragma synthesis_on
+        PRE, CLR, CLK, D : in  std_logic; 
+        Q, Qbar: out std_logic);
+    end component;
+
+
+
+	signal  Q2,Q1,Q0,Qbar2,Qbar1,Qbar0 : std_logic;
+	signal  out_poarta,out_poarta_A,out_poarta_B,out_poarta_C,out_poarta_D: std_logic;
+	signal out_poarta_1,out_poarta_2,out_poarta_3,out_poarta_4,out_poarta_5,out_poarta_6,out_poarta_7,out_poarta_8,out_poarta_9,out_poarta_10,out_poarta_11,out_poarta_12,out_poarta_13: std_logic;
+
+begin
+	 instanta_automat : automat port map (vcc => 3.3,CLK=>CLK,V=>V,LSB=>LSB,Start=>Start,Q2=>Q2,Q1=>Q1,Q0=>Q0);
+	 
+	
+--porti pt D2
+    poarta: or2 generic map (Domain => Domain) port map (a=>V,b=>Q1,o=>out_poarta,vcc => 3.3 );
+	D2: and3 generic map (Domain => Domain) port map (  a=> Qbar0,b=>out_poarta,c=Q2,o=>out_poarta_A, vcc => 3.3);
+	bist2 : bistD generic map (Domain => Domain) port map (D=>out_poarta_A	, Q=>Q2 , Qbar=>Qbar1 , CLK => CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
+	
+--porti pt D1
+
+	
+poartaB: and3 generic map (Domain => Domain) port map (  a=> Qbar2,b=>Qbar0,c=Q1,o=>out_poarta_B, vcc => 3.3);
+poartaC: and3 generic map (Domain => Domain) port map (  a=> Q2,b=>Qbar0,c=Qbar1,o=>out_poarta_C, vcc => 3.3);
+D1: or2 generic map (Domain => Domain) port map (a=>out_poarta_B,b=>out_poarta_C,o =>out_poarta_D vcc =>3.3);
+bist1 : bistD generic map (Domain => Domain) port map (D=>out_poarta_D	, Q=>Q2 , Qbar=>Qbar1 , CLK => CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
+
+
+--porti pt D0	 
+
+poarta1: and2 generic map (Domain => Domain) port map (  a=> Start,b=>Qbar0,o=>out_poarta_1, vcc => 3.3);
+poarta2: and2 generic map (Domain => Domain) port map (  a=> Q1,b=>Q2,o=>out_poarta_2, vcc => 3.3);
+
+poarta3: and2 generic map (Domain => Domain) port map (  a=> LSB,b=>Qbar0,o=>out_poarta_3, vcc => 3.3);
+poarta4: and2 generic map (Domain => Domain) port map (  a=> Q1,b=>Qbar2,o=>out_poarta_4, vcc => 3.3);
+
+
+poarta5: and2 generic map (Domain => Domain) port map (  a=> V,b=>Q0,o=>out_poarta_5, vcc => 3.3);
+poarta6: and2 generic map (Domain => Domain) port map (  a=> Q1,b=>Q2,o=>out_poarta_6, vcc => 3.3);
+
+poarta7:and2 generic map (Domain => Domain) port map (  a=> out_poarta_1,b=>out_poarta_2,o=>out_poarta_7, vcc => 3.3);
+poarta8:and2 generic map (Domain => Domain) port map (  a=> out_poarta_3,b=>out_poarta_4,o=>out_poarta_8, vcc => 3.3);
+poarta9:and2 generic map (Domain => Domain) port map (  a=> out_poarta_5,b=>out_poarta_6,o=>out_poarta_9, vcc => 3.3);
+poarta10:and3 generic map (Domain => Domain) port map (  a=> Q0,b=>Q1,c=Qbar2,o=>out_poarta_10, vcc => 3.3);
+
+poarta11:or2 generic map (Domain => Domain) port map (a=>out_poarta_7,b=>out_poarta_8,o=>out_poarta_11 ,vcc => 3.3 );
+poarta12:or2 generic map (Domain => Domain) port map (a=>out_poarta_9,b=>out_poarta_10,o=>out_poarta_12, vcc => 3.3 );
+
+D0: or2 generic map (Domain => Domain) port map (a=>out_poarta_11,b=>out_poarta_12,o=>out_poarta_13, vcc => 3.3 );
+bist0 : bistD generic map (Domain => Domain) port map (D=>out_poarta_13	, Q=>Q2 , Qbar=>Qbar1 , CLK => CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
+	
+end architecture;
+
+
+
+
+
+library IEEE;
+use ieee.std_logic_1164.all; 
+
+entity Test_automat is
+end entity;
+
+architecture Test of Test_automat is
+
+	component automat  is
+	generic ( Domain: integer := 1);
+	port (
+         
+           vcc : in real;
+           CLK,V,LSB,Start : in  std_logic;
+           Q2,Q1,Q0 : out  std_logic);
+    end component;
+    
+        
+	signal CLK,V,LSB,Start : std_logic;
+	
+	signal count : std_logic_vector(2 downto 0);
+
+begin
+
+	instanta_automat : automat port map (vcc => 3.3,CLK=>CLK,V=>V,LSB=>LSB,Start=>Start,Q2=>count,Q1=>count,Q0=>count);
+	
+	generare_semnal_tact: process
+	begin
+		clk <= '0';
+		wait for 5 ns;
+		clk <= '1';
+		wait for 5 ns;
+	end process;
+	
+	init <= '1' , '0' after 55 ns;
+	check <= '1', '0' after 65 ns, '1' after 75 ns;
+	process begin
+		wait for 1000 ns;
+		assert false report "end simulation" severity failure;
+		end process;
+end architecture;
+
