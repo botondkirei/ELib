@@ -695,7 +695,7 @@ architecture structural of automat is
     end component;
 
 
-	signal  Qbar2,Qbar1,Qbar0 : std_logic;
+	signal  Qbar2,Qbar1,Qbar0,Vbar : std_logic;
 	signal  out_poarta,out_poarta_A,out_poarta_B,out_poarta_C,out_poarta_D: std_logic;
 	signal out_poarta_1,out_poarta_2,out_poarta_3,out_poarta_4,out_poarta_5,out_poarta_6,out_poarta_7,out_poarta_8,out_poarta_9,out_poarta_10,out_poarta_11,out_poarta_12,out_poarta_13: std_logic;
 
@@ -721,17 +721,17 @@ bist1 : bistD generic map (Domain => Domain) port map (D=>out_poarta_D	, Q=>Q1 ,
 poarta1: and2 generic map (Domain => Domain) port map (  a=> Start,b=>Qbar0,o=>out_poarta_1, vcc => 3.3);
 poarta2: and2 generic map (Domain => Domain) port map (  a=> Qbar1,b=>Qbar2,o=>out_poarta_2, vcc => 3.3);
 
-poarta3: and2 generic map (Domain => Domain) port map (  a=> LSB,b=>Qbar0,o=>out_poarta_3, vcc => 3.3);
-poarta4: and2 generic map (Domain => Domain) port map (  a=> Q1,b=>Qbar2,o=>out_poarta_4, vcc => 3.3);
+poarta3: and2 generic map (Domain => Domain) port map (  a=> LSB,b=>Q0,o=>out_poarta_3, vcc => 3.3);
+poarta4: and2 generic map (Domain => Domain) port map (  a=> Qbar1,b=>Qbar2,o=>out_poarta_4, vcc => 3.3);
 
 
-poarta5: and2 generic map (Domain => Domain) port map (  a=> V,b=>Q0,o=>out_poarta_5, vcc => 3.3);
-poarta6: and2 generic map (Domain => Domain) port map (  a=> Q1,b=>Q2,o=>out_poarta_6, vcc => 3.3);
+poarta5: and2 generic map (Domain => Domain) port map (  a=> Vbar,b=>Q0,o=>out_poarta_5, vcc => 3.3);
+poarta6: and2 generic map (Domain => Domain) port map (  a=> Q1,b=>Qbar2,o=>out_poarta_6, vcc => 3.3);
 
 poarta7:and2 generic map (Domain => Domain) port map (  a=> out_poarta_1,b=>out_poarta_2,o=>out_poarta_7, vcc => 3.3);
 poarta8:and2 generic map (Domain => Domain) port map (  a=> out_poarta_3,b=>out_poarta_4,o=>out_poarta_8, vcc => 3.3);
 poarta9:and2 generic map (Domain => Domain) port map (  a=> out_poarta_5,b=>out_poarta_6,o=>out_poarta_9, vcc => 3.3);
-poarta10:and3 generic map (Domain => Domain) port map (  a=> Q0,b=>Q1,c=>Qbar2,o=>out_poarta_10, vcc => 3.3);
+poarta10:and3 generic map (Domain => Domain) port map (  a=> Qbar0,b=>Q1,c=>Qbar2,o=>out_poarta_10, vcc => 3.3);
 
 poarta11:or2 generic map (Domain => Domain) port map (a=>out_poarta_7,b=>out_poarta_8,o=>out_poarta_11 ,vcc => 3.3 );
 poarta12:or2 generic map (Domain => Domain) port map (a=>out_poarta_9,b=>out_poarta_10,o=>out_poarta_12, vcc => 3.3 );

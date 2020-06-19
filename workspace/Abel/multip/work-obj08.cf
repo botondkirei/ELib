@@ -1,67 +1,67 @@
 v 4
-file . "../../../PAelib_new/sxlib/xor2.vhd" "0c68fd125c8c40e71ff4fab2ecb415130fad02dd" "20200619170749.636":
-  entity xor2 at 9( 442) + 0 on 3180;
-  architecture primitiv of xor2 at 34( 1006) + 0 on 3181;
-file . "../../../PAelib_new/sxlib/nor2.vhd" "de823b7981a2fe48a10e66ce62ab5395f71d5847" "20200619170749.684":
-  entity nor2 at 9( 442) + 0 on 3182;
-  architecture primitiv of nor2 at 34( 1005) + 0 on 3183;
-file . "../../../PAelib_new/sxlib/nand3.vhd" "ec005b541f2b061755892834a45f12119102e837" "20200619170749.760":
-  entity nand3 at 9( 442) + 0 on 3186;
-  architecture primitiv of nand3 at 35( 1048) + 0 on 3187;
-file . "../../../PAelib_new/sxlib/or3.vhd" "c91d853248690fbc5ffbb4ba67429f0447a2bfa1" "20200619170749.799":
-  entity or3 at 9( 442) + 0 on 3188;
-  architecture primitiv of or3 at 35( 1047) + 0 on 3189;
-file . "../../../PAelib_new/sxlib/or2.vhd" "c22ceb5fce7e173800c5cf93529fba304b757daf" "20200619170749.605":
-  entity or2 at 9( 442) + 0 on 3178;
-  architecture primitiv of or2 at 34( 1005) + 0 on 3179;
-file . "../../../PAelib_new/sxlib/inv1.vhd" "cbc0063b0fa284d0c85b7edb87a6f88c9dd7bcce" "20200619170749.474":
-  entity inv1 at 9( 442) + 0 on 3172;
-  architecture primitiv of inv1 at 33( 964) + 0 on 3173;
-file . "./test_multip.vhd" "61f764fa58049bca61980f4f6869ee5a936db0e7" "20200619170749.999":
-  entity test_mult8 at 2( 2) + 0 on 3219;
-  architecture driver of test_mult8 at 12( 198) + 0 on 3220;
-file . "./Multiplier8.vhd" "2941e1625d623ac81af3b6c507c06152993631d5" "20200619170749.920":
-  entity mult8 at 1( 0) + 0 on 3215;
-  architecture interativeadd of mult8 at 19( 413) + 0 on 3216;
-file . "./Multiplier8CG.vhd" "d829a38600137747af2eb735368f578ee6abd2c5" "20200619170749.955":
-  entity mult8cg at 1( 0) + 0 on 3217;
-  architecture interativeadd of mult8cg at 19( 416) + 0 on 3218;
-file . "../../../PAelib_new/pmonitor.vhd" "f3a011d88d97a4f851cdb8d004962e5051c90f73" "20200619170749.426":
-  package pmonitor at 1( 0) + 0 on 3170 body;
-  package body pmonitor at 31( 1005) + 0 on 3171;
-file . "../../../PAelib_new/sxlib/and2.vhd" "2c477ac412ce0d076dfbfd34bae668f1221b918a" "20200619170749.518":
-  entity and2 at 9( 442) + 0 on 3174;
-  architecture primitiv of and2 at 34( 1007) + 0 on 3175;
-file . "../../../PAelib_new/sxlib/and3.vhd" "24ca7029d3b1835674b3a1ed3769258c68ec4491" "20200619170749.715":
-  entity and3 at 9( 442) + 0 on 3184;
-  architecture primitiv of and3 at 35( 1048) + 0 on 3185;
-file . "../../../PAelib_new/sxlib/or4.vhd" "ac5d8c167069461f20a1c3005544f4c1fd2c66ae" "20200619170749.837":
-  entity or4 at 9( 442) + 0 on 3190;
-  architecture primitiv of or4 at 35( 1048) + 0 on 3191;
-file . "../../../PAelib_new/sxlib/and4.vhd" "f0bf7e05adb850ea2a6745609d667ec377399a94" "20200619170749.555":
-  entity and4 at 9( 442) + 0 on 3176;
-  architecture primitiv of and4 at 36( 1090) + 0 on 3177;
-file . "./pack.vhd" "d3bfff84e59f620d145f669e374f94af57b853d6" "20200619170749.882":
-  package components at 1( 0) + 0 on 3192;
-  entity adder4 at 93( 2298) + 0 on 3193;
-  architecture structural of adder4 at 110( 2718) + 0 on 3194;
-  entity controller at 136( 3751) + 0 on 3195;
-  architecture fsm of controller at 149( 4106) + 0 on 3196;
-  entity full_adder at 212( 6031) + 0 on 3197;
-  architecture fa_str of full_adder at 228( 6414) + 0 on 3198;
-  entity clock_gate at 276( 7753) + 0 on 3199;
-  architecture structural of clock_gate at 290( 8055) + 0 on 3200;
-  entity bistd at 311( 8604) + 0 on 3201;
-  architecture structural of bistd at 328( 8999) + 0 on 3202;
-  entity shift4 at 365( 10514) + 0 on 3203;
-  architecture behavior of shift4 at 384( 11069) + 0 on 3204;
-  entity shift_cell at 426( 12697) + 0 on 3205;
-  architecture structural of shift_cell at 444( 13085) + 0 on 3206;
-  entity counter at 525( 15432) + 0 on 3207;
-  architecture structural of counter at 536( 15681) + 0 on 3208;
-  entity test_counter at 601( 17873) + 0 on 3209;
-  architecture test of test_counter at 607( 17960) + 0 on 3210;
-  entity automat at 643( 18755) + 0 on 3211;
-  architecture structural of automat at 653( 19009) + 0 on 3212;
-  entity test_automat at 748( 22938) + 0 on 3213;
-  architecture test of test_automat at 754( 23025) + 0 on 3214;
+file . "./pack.vhd" "2e908b42cf2739e078a20f4024e0acb3e99f7851" "20200619172028.022":
+  package components at 1( 0) + 0 on 3317;
+  entity adder4 at 93( 2298) + 0 on 3318;
+  architecture structural of adder4 at 110( 2718) + 0 on 3319;
+  entity controller at 136( 3751) + 0 on 3320;
+  architecture fsm of controller at 149( 4106) + 0 on 3321;
+  entity full_adder at 212( 6031) + 0 on 3322;
+  architecture fa_str of full_adder at 228( 6414) + 0 on 3323;
+  entity clock_gate at 276( 7753) + 0 on 3324;
+  architecture structural of clock_gate at 290( 8055) + 0 on 3325;
+  entity bistd at 311( 8604) + 0 on 3326;
+  architecture structural of bistd at 328( 8999) + 0 on 3327;
+  entity shift4 at 365( 10514) + 0 on 3328;
+  architecture behavior of shift4 at 384( 11069) + 0 on 3329;
+  entity shift_cell at 426( 12697) + 0 on 3330;
+  architecture structural of shift_cell at 444( 13085) + 0 on 3331;
+  entity counter at 525( 15432) + 0 on 3332;
+  architecture structural of counter at 536( 15681) + 0 on 3333;
+  entity test_counter at 601( 17873) + 0 on 3334;
+  architecture test of test_counter at 607( 17960) + 0 on 3335;
+  entity automat at 643( 18755) + 0 on 3336;
+  architecture structural of automat at 653( 19009) + 0 on 3337;
+  entity test_automat at 748( 22952) + 0 on 3338;
+  architecture test of test_automat at 754( 23039) + 0 on 3339;
+file . "../../../PAelib_new/sxlib/and4.vhd" "f0bf7e05adb850ea2a6745609d667ec377399a94" "20200619172027.675":
+  entity and4 at 9( 442) + 0 on 3301;
+  architecture primitiv of and4 at 36( 1090) + 0 on 3302;
+file . "../../../PAelib_new/sxlib/or4.vhd" "ac5d8c167069461f20a1c3005544f4c1fd2c66ae" "20200619172027.975":
+  entity or4 at 9( 442) + 0 on 3315;
+  architecture primitiv of or4 at 35( 1048) + 0 on 3316;
+file . "../../../PAelib_new/sxlib/and3.vhd" "24ca7029d3b1835674b3a1ed3769258c68ec4491" "20200619172027.844":
+  entity and3 at 9( 442) + 0 on 3309;
+  architecture primitiv of and3 at 35( 1048) + 0 on 3310;
+file . "../../../PAelib_new/sxlib/and2.vhd" "2c477ac412ce0d076dfbfd34bae668f1221b918a" "20200619172027.628":
+  entity and2 at 9( 442) + 0 on 3299;
+  architecture primitiv of and2 at 34( 1007) + 0 on 3300;
+file . "../../../PAelib_new/pmonitor.vhd" "f3a011d88d97a4f851cdb8d004962e5051c90f73" "20200619172027.558":
+  package pmonitor at 1( 0) + 0 on 3295 body;
+  package body pmonitor at 31( 1005) + 0 on 3296;
+file . "./Multiplier8CG.vhd" "d829a38600137747af2eb735368f578ee6abd2c5" "20200619172028.103":
+  entity mult8cg at 1( 0) + 0 on 3342;
+  architecture interativeadd of mult8cg at 19( 416) + 0 on 3343;
+file . "./Multiplier8.vhd" "2941e1625d623ac81af3b6c507c06152993631d5" "20200619172028.063":
+  entity mult8 at 1( 0) + 0 on 3340;
+  architecture interativeadd of mult8 at 19( 413) + 0 on 3341;
+file . "./test_multip.vhd" "61f764fa58049bca61980f4f6869ee5a936db0e7" "20200619172028.141":
+  entity test_mult8 at 2( 2) + 0 on 3344;
+  architecture driver of test_mult8 at 12( 198) + 0 on 3345;
+file . "../../../PAelib_new/sxlib/inv1.vhd" "cbc0063b0fa284d0c85b7edb87a6f88c9dd7bcce" "20200619172027.594":
+  entity inv1 at 9( 442) + 0 on 3297;
+  architecture primitiv of inv1 at 33( 964) + 0 on 3298;
+file . "../../../PAelib_new/sxlib/or2.vhd" "c22ceb5fce7e173800c5cf93529fba304b757daf" "20200619172027.712":
+  entity or2 at 9( 442) + 0 on 3303;
+  architecture primitiv of or2 at 34( 1005) + 0 on 3304;
+file . "../../../PAelib_new/sxlib/or3.vhd" "c91d853248690fbc5ffbb4ba67429f0447a2bfa1" "20200619172027.928":
+  entity or3 at 9( 442) + 0 on 3313;
+  architecture primitiv of or3 at 35( 1047) + 0 on 3314;
+file . "../../../PAelib_new/sxlib/nand3.vhd" "ec005b541f2b061755892834a45f12119102e837" "20200619172027.890":
+  entity nand3 at 9( 442) + 0 on 3311;
+  architecture primitiv of nand3 at 35( 1048) + 0 on 3312;
+file . "../../../PAelib_new/sxlib/nor2.vhd" "de823b7981a2fe48a10e66ce62ab5395f71d5847" "20200619172027.806":
+  entity nor2 at 9( 442) + 0 on 3307;
+  architecture primitiv of nor2 at 34( 1005) + 0 on 3308;
+file . "../../../PAelib_new/sxlib/xor2.vhd" "0c68fd125c8c40e71ff4fab2ecb415130fad02dd" "20200619172027.759":
+  entity xor2 at 9( 442) + 0 on 3305;
+  architecture primitiv of xor2 at 34( 1006) + 0 on 3306;
