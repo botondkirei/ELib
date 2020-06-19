@@ -654,8 +654,8 @@ component inv1
 	generic ( Domain: integer := 1);
 	port (
 		  vcc : in real;
-		  a, V : in  std_logic;      
-		  o, Vbar : out std_logic);
+		  a : in  std_logic;      
+		  o : out std_logic);
 	end component ;
 	
 	
@@ -789,7 +789,7 @@ begin
 	
 	CLR <= '0', '1' after 10 ns;
 	
-	V <= '1' , '0' after 55 ns;
+	V <= '0' , '1' after 175 ns, '0' after 220 ns;
 	LSB <= '1', '0' after 105 ns, '1' after 135 ns;
 	START <= '0', '1' after 65 ns, '0' after 75 ns;
 	
