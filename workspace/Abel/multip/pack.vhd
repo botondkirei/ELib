@@ -636,6 +636,8 @@ begin
 		end process;
 end architecture;
 
+-----------------------------------------------------------------------
+
 
 library IEEE;
 use ieee.std_logic_1164.all; 
@@ -752,6 +754,7 @@ bist0 : bistD generic map (Domain => Domain) port map (D=>out_poarta_14	, Q=>Q0 
 	
 end architecture;
 
+-----------------------------------------------------------------------
 
 library IEEE;
 use ieee.std_logic_1164.all; 
@@ -799,3 +802,94 @@ begin
 		end process;
 end architecture;
 
+
+-----------------------------------------------------------------------
+
+library IEEE;
+use ieee.std_logic_1164.all; 
+
+entity comp is
+	port ( 
+		cin, a, b: in std_logic;
+		cout : out std_logic;
+		);
+end entity;
+
+architecture structural of comp is
+
+	component and2 ...
+	
+	end component;
+	
+	component and4 ...
+	
+	end component;
+	
+	component xor ...
+	
+	signal net1, net2 : std_logic;
+	
+begin
+
+	--instantieri
+	
+end architecture;
+
+
+-----------------------------------------------------------------------
+
+library IEEE;
+use ieee.std_logic_1164.all; 
+
+entity comp_3biti is
+	port ( 
+		cin: in std_logic;
+		a, b: in std_logic_vector(2 downto 0);
+		cout : out std_logic;
+		);
+end entity;
+
+architecture structural of comp_3biti is
+
+	component comp is
+	port ( 
+		cin, a, b: in std_logic;
+		cout : out std_logic;
+		);
+	end component;
+	
+	signal net1, net2 : std_logic;
+
+begin
+
+	comp1 : comp port map ....
+	comp2 : comp port map ....
+	comp3 : comp port map ....
+		
+end architecture;
+
+
+
+-----------------------------------------------------------------------
+
+library IEEE;
+use ieee.std_logic_1164.all; 
+
+entity test_comp_3biti is
+end entity;
+
+architecture test of test_comp_3biti is
+
+	component test_comp_3biti ...
+	
+	end component;
+	
+	signal ...
+	
+begin
+
+	--instantierea test_comp_3biti
+	
+	--generare semnale de intrare
+	
+end architecture;
