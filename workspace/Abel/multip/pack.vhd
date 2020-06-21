@@ -817,21 +817,40 @@ end entity;
 
 architecture structural of comp is
 
-	component and2 ...
+	component and3              
+	generic ( Domain: integer := 1);
+	port (
+		  vcc : in real;
+		  a, b, c : in  std_logic;      
+		  o: out std_logic);
+	end component ;
 	
-	end component;
+	component or2              
+	generic ( Domain: integer := 1);
+	port (
+		  vcc : in real;
+		  a, b : in  std_logic;      
+		  o: out std_logic);
+	end component ;
 	
-	component and4 ...
+	component inv1              
+	generic ( Domain: integer := 1);
+	port (
+		  vcc : in real;
+		  a,b : in  std_logic;      
+		  o : out std_logic);
+	end component ;
 	
-	end component;
-	
-	component xor ...
-	
-	signal net1, net2 : std_logic;
+	signal  abar,bbar : std_logic;
+	signal net1, net2,net3 : std_logic;
+	signal out_poarta_x1,out_poarta_x2,out_poarta_y : std_logic;
 	
 begin
 
-	--instantieri
+	x1: and3 generic map (Domain => Domain) port map ( a=> Cin,  b=>a, c=>b, o=>out_poarta_x1, vcc => 3.3);
+	x2: and3 generic map (Domain => Domain) port map ( a=> Cin,  b=>abar, c=>bbar, o=>out_poarta_x2, vcc => 3.3); 
+	
+	y: or2 generic map (Domain => Domain) port map ( a=> net1,  b=>net2,  o=>out_poarta_y, vcc => 3.3);
 	
 end architecture;
 
@@ -880,16 +899,39 @@ end entity;
 
 architecture test of test_comp_3biti is
 
-	component test_comp_3biti ...
+	component test_comp_3biti
 	
+	port ( 
+		cin, a, b: in std_logic;
+		cout : out std_logic;
+		);
 	end component;
 	
-	signal ...
+	signal cin, a, b : std_logic;
+	signal count : std_logic_vector(2 downto 0);
+
 	
 begin
 
-	--instantierea test_comp_3biti
+	instanta_test_comp_3biti : automat port map (vcc => 3.3,cin=>cin,a=>a ,b=>b,cout=>count);
 	
-	--generare semnale de intrare
+	generare_semnal_tact: process
+	begin
+		clk <= '0';
+		wait for 5 ns;
+		clk <= '1';
+		wait for 5 ns;
+	end process;
+	
+	CLR <= '0', '1' after 10 ns;
+	
+	V <= '0' , '1' after 175 ns, '0' after 220 ns;
+	LSB <= '1', '0' after 105 ns, '1' after 135 ns;
+	START <= '0', '1' after 65 ns, '0' after 75 ns;
+	
+	process begin
+		wait for 1000 ns;
+		assert false report "end simulation" severity failure;
+		end process;
 	
 end architecture;
