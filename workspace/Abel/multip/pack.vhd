@@ -924,7 +924,7 @@ begin
 
 	instanta_comp_3biti : comp_3biti port map ( vcc => 3.3, eqin=>eqin, a=>a , b=>b, eqout=>eqout);
 	
-	eqin <= '1', '0' after 40 ns, '1' after 80 ns;
+	eqin <= '1', '1' after 40 ns, '1' after 80 ns;
 	a <= "000", "101" after 10 ns, "110" after 20 ns;
 	b <= "000", "100" after 10 ns, "110" after 20 ns;
 	
