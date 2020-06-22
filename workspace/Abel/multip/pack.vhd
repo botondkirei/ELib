@@ -808,14 +808,16 @@ end architecture;
 library IEEE;
 use ieee.std_logic_1164.all; 
 
-entity comp is
-	port ( 
-		cin, a, b: in std_logic;
-		cout : out std_logic;
+entity comparator_1bit is
+	generic (Domain : integer := 1);
+	port (
+		vcc : real; 
+		eqin, a, b: in std_logic;
+		eqout : out std_logic
 		);
 end entity;
 
-architecture structural of comp is
+architecture structural of comparator_1bit is
 
 	component and3              
 	generic ( Domain: integer := 1);
@@ -837,20 +839,22 @@ architecture structural of comp is
 	generic ( Domain: integer := 1);
 	port (
 		  vcc : in real;
-		  a,b : in  std_logic;      
+		  a : in  std_logic;      
 		  o : out std_logic);
 	end component ;
 	
-	signal  abar,bbar : std_logic;
-	signal net1, net2,net3 : std_logic;
-	signal out_poarta_x1,out_poarta_x2,out_poarta_y : std_logic;
+	signal abar, bbar : std_logic;
+	signal out_poarta_x1,out_poarta_x2 : std_logic;
 	
 begin
 
-	x1: and3 generic map (Domain => Domain) port map ( a=> Cin,  b=>a, c=>b, o=>out_poarta_x1, vcc => 3.3);
-	x2: and3 generic map (Domain => Domain) port map ( a=> Cin,  b=>abar, c=>bbar, o=>out_poarta_x2, vcc => 3.3); 
+	i1 : inv1 generic map (Domain => Domain) port map ( a=> a, o => abar, vcc => vcc);
+	i2 : inv1 generic map (Domain => Domain) port map ( a=> b, o => bbar, vcc => vcc);
+
+	x1: and3 generic map (Domain => Domain) port map ( a=> eqin,  b=>a, c=>b, o=>out_poarta_x1, vcc => vcc);
+	x2: and3 generic map (Domain => Domain) port map ( a=> eqin,  b=>abar, c=>bbar, o=>out_poarta_x2, vcc => vcc); 
 	
-	y: or2 generic map (Domain => Domain) port map ( a=> net1,  b=>net2,  o=>out_poarta_y, vcc => 3.3);
+	y: or2 generic map (Domain => Domain) port map ( a=> out_poarta_x1 ,  b=>out_poarta_x2 ,  o=> eqout , vcc => vcc);
 	
 end architecture;
 
@@ -861,19 +865,23 @@ library IEEE;
 use ieee.std_logic_1164.all; 
 
 entity comp_3biti is
-	port ( 
-		cin: in std_logic;
+	generic (Domain : integer := 1);
+	port (
+		vcc : real;
+		eqin: in std_logic;
 		a, b: in std_logic_vector(2 downto 0);
-		cout : out std_logic;
+		eqout : out std_logic
 		);
 end entity;
 
 architecture structural of comp_3biti is
 
-	component comp is
-	port ( 
-		cin, a, b: in std_logic;
-		cout : out std_logic;
+	component comparator_1bit is
+	generic (Domain : integer := 1);
+	port (
+		vcc : real; 
+		eqin, a, b: in std_logic;
+		eqout : out std_logic
 		);
 	end component;
 	
@@ -881,9 +889,9 @@ architecture structural of comp_3biti is
 
 begin
 
-	comp1 : comp port map ....
-	comp2 : comp port map ....
-	comp3 : comp port map ....
+	comp1 : comparator_1bit generic map (Domain => Domain) port map (eqin =>eqin, a =>a(2), b => b(2), eqout =>net1, vcc => vcc); 
+	comp2 : comparator_1bit generic map (Domain => Domain) port map (eqin =>net1, a =>a(1), b => b(1), eqout =>net2, vcc => vcc); 
+	comp3 : comparator_1bit generic map (Domain => Domain) port map (eqin =>net2, a =>a(0), b => b(0), eqout =>eqout, vcc => vcc); 
 		
 end architecture;
 
@@ -899,39 +907,31 @@ end entity;
 
 architecture test of test_comp_3biti is
 
-	component test_comp_3biti
-	
+	component comp_3biti is
+	generic (Domain : integer := 1);
 	port ( 
-		cin, a, b: in std_logic;
-		cout : out std_logic;
+		vcc : real;
+		eqin: in std_logic;
+		a, b: in std_logic_vector(2 downto 0);
+		eqout : out std_logic
 		);
 	end component;
 	
-	signal cin, a, b : std_logic;
-	signal count : std_logic_vector(2 downto 0);
-
+	signal eqin, eqout : std_logic;
+	signal a, b : std_logic_vector(2 downto 0);
 	
 begin
 
-	instanta_test_comp_3biti : automat port map (vcc => 3.3,cin=>cin,a=>a ,b=>b,cout=>count);
+	instanta_comp_3biti : comp_3biti port map ( vcc => 3.3, eqin=>eqin, a=>a , b=>b, eqout=>eqout);
 	
-	generare_semnal_tact: process
-	begin
-		clk <= '0';
-		wait for 5 ns;
-		clk <= '1';
-		wait for 5 ns;
-	end process;
+	eqin <= '1', '0' after 40 ns, '1' after 80 ns;
+	a <= "000", "101" after 10 ns, "110" after 20 ns;
+	b <= "000", "100" after 10 ns, "110" after 20 ns;
 	
-	CLR <= '0', '1' after 10 ns;
-	
-	V <= '0' , '1' after 175 ns, '0' after 220 ns;
-	LSB <= '1', '0' after 105 ns, '1' after 135 ns;
-	START <= '0', '1' after 65 ns, '0' after 75 ns;
 	
 	process begin
-		wait for 1000 ns;
+		wait for 100 ns;
 		assert false report "end simulation" severity failure;
-		end process;
+	end process;
 	
 end architecture;
