@@ -48,8 +48,10 @@ SR_High: Shift4 generic map (Domain => Domain) port map
       ( CLK => CLK, CLR => CLRHI, LD => LDHI, SH => SHHI,
        DIR => Low, D => ADDout, Q => HI, Sin => OFL, vcc => 3.3); 
 
-FSM: Controller generic map (Domain => Domain) port map
-( Start, CLK, LO(0), LDM, LDHI, LDLO, SHHI, SHLO, Done, CLRHI, CG_EN);
+--FSM: Controller generic map (Domain => Domain) port map
+--( Start, CLK, LO(0), LDM, LDHI, LDLO, SHHI, SHLO, Done, CLRHI, CG_EN);
+FSM: Controller_structural generic map (Domain => Domain) port map
+( 3.3, Start, CLK, Reset, LO(0), LDM, LDHI, LDLO, SHHI, SHLO, Done, CLRHI, CG_EN);
 
 end;
 

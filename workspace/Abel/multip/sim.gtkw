@@ -1,25 +1,31 @@
 [*]
 [*] GTKWave Analyzer v3.3.61 (w)1999-2014 BSI
-[*] Mon Jun 22 12:46:21 2020
+[*] Tue Jul 07 22:11:49 2020
 [*]
 [dumpfile] "C:\Users\Botix\Desktop\ELib\workspace\Abel\multip\sim.vcd"
-[dumpfile_mtime] "Mon Jun 22 12:45:41 2020"
-[dumpfile_size] 4267
+[dumpfile_mtime] "Tue Jul 07 22:11:28 2020"
+[dumpfile_size] 1626836
 [savefile] "C:\Users\Botix\Desktop\ELib\workspace\Abel\multip\sim.gtkw"
 [timestart] 0
 [size] 1280 845
 [pos] -1 -1
-*-24.663544 40000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
-[treeopen] test_comp_3biti.
-[treeopen] test_comp_3biti.instanta_comp_3biti.
+*-26.728010 110500000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [sst_width] 211
-[signals_width] 126
+[signals_width] 134
 [sst_expanded] 1
 [sst_vpaned_height] 280
+@22
+test_mult8.a[3:0]
+test_mult8.b[3:0]
 @28
-test_comp_3biti.a[2:0]
-test_comp_3biti.b[2:0]
-test_comp_3biti.eqin
-test_comp_3biti.eqout
+test_mult8.clk
+test_mult8.done1
+test_mult8.done2
+test_mult8.reset
+@25
+test_mult8.result1[7:0]
+test_mult8.result2[7:0]
+@28
+test_mult8.start
 [pattern_trace] 1
 [pattern_trace] 0

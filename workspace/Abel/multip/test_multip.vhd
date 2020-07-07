@@ -61,16 +61,18 @@ begin
 	Reset <= '0', '1' after 10 ns;
 	Stimulus: process
 	begin
+		--report "start simulation" severity note;
 		PM.RESETPOWER(1);
 		PM.RESETPOWER(2);
 		
 		wait until RESET = '1';
 		for i in 2 to 5 loop
 			for j in 4 to 7 loop
+				--report "inner loop" severity note;
 				A <= Conv_std_logic_vector (i, A'Length );
 				B <= Conv_std_logic_vector (j, B'Length ); 
 				wait until CLK'Event and CLK='1';
-				Start <='1', '0' after 20 ns;
+				Start <='1', '0' after 10 ns;
 				wait until Done1 ='1';
 				assert (Result1 = Result2) report "product incorrect" severity error;
 				wait until CLK'Event and CLK = '1';

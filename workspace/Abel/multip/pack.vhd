@@ -35,6 +35,20 @@ component Controller
 		Done, CLRHI, CG_EN: out std_logic);
 end component;
 
+component Controller_structural is
+	generic ( Domain: integer := 1);
+	port ( 
+		-- power pins
+		Vcc : in real;
+		-- end power pins
+		Start : in std_logic; 
+		CLK, CLR : in std_logic;
+		LSB : in std_logic; LDM : out std_logic;
+		LDHI : out std_logic;  LDLO: out std_logic;
+		SHHI : out std_logic; SHLO : out std_logic; 
+		Done, CLRHI, CG_EN : out std_logic);
+end component;
+
 component clock_gate 
 	generic ( Domain: integer := 1);
   	port (
@@ -71,18 +85,51 @@ end component;
 
 component shift_cell is
 	generic ( Domain: integer := 1);
-	port (
-       --pragma synthesis_off
-       vcc : in real;
-       --pragma synthesis_on
-       CLK,CLR: in std_logic;
+	port ( 
+	   --pragma synthesis_off
+	   vcc : in real;
+	   --pragma synthesis_on
+	   CLK,CLR: in std_logic;
        Dir, DirN : in std_logic;
        SH, LD : in std_logic;
        SR, SL : in std_logic;
        D : in std_logic;
-       Q : inout std_logic;
-       Consum: out real := 0.0);
-end component;
+       Q : inout std_logic );end component;
+
+component counter is
+generic ( Domain: integer := 1);
+port (
+    vcc : in real;
+    CLK, init, check : in  std_logic; 
+    Q : out std_logic_vector(2 downto 0));
+end component;
+
+component comp_3biti is
+generic (Domain : integer := 1);
+port (
+	vcc : real;
+	eqin: in std_logic;
+	a, b: in std_logic_vector(2 downto 0);
+	eqout : out std_logic
+	);
+end component;
+
+component automat is
+generic ( Domain: integer := 1);
+port (
+       vcc : in real;
+       CLK,CLR, V,LSB,Start : in  std_logic;
+       Q2,Q1,Q0 : out  std_logic);
+end component;
+
+component comparator_1bit is
+generic (Domain : integer := 1);
+port (
+	vcc : real; 
+	eqin, a, b: in std_logic;
+	eqout : out std_logic
+	);
+end component;
 
 end Components;
 
@@ -204,6 +251,177 @@ StateMachine :
     end process;                           --
 ---------------------------------------------------------
 end;	
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+library IEEE;
+use IEEE.std_logic_1164.all;
+
+entity Controller_structural is
+	generic ( Domain: integer := 1);
+	port ( 
+		-- power pins
+		Vcc : in real;
+		-- end power pins
+		Start : in std_logic; 
+		CLK, CLR : in std_logic;
+		LSB : in std_logic; LDM : out std_logic;
+		LDHI : out std_logic;  LDLO: out std_logic;
+		SHHI : out std_logic; SHLO : out std_logic; 
+		Done, CLRHI, CG_EN : out std_logic);
+end Controller_structural;
+
+architecture structural of Controller_structural is
+
+	component counter is
+	generic ( Domain: integer := 1);
+	port (
+        vcc : in real;
+        CLK, init, check : in  std_logic; 
+        Q : out std_logic_vector(2 downto 0));
+    end component;
+    
+    component comp_3biti is
+	generic (Domain : integer := 1);
+	port (
+		vcc : real;
+		eqin: in std_logic;
+		a, b: in std_logic_vector(2 downto 0);
+		eqout : out std_logic
+		);
+	end component;
+	
+	component automat is
+	generic ( Domain: integer := 1);
+	port (
+           vcc : in real;
+           CLK,CLR, V,LSB,Start : in  std_logic;
+           Q2,Q1,Q0 : out  std_logic);
+	end component;
+	
+	component inv1 is
+	generic (
+			Domain : integer := 1;
+			Cin : real := 3.5e-15;
+			Cpd : real := 3.95e-15;
+			pleack : real := 0.35e-9;
+			Area : real := 1.0
+		);
+	port (
+           vcc : in real;
+           a : in  std_logic;
+           o : out  std_logic);
+	end component;
+	
+	component nor3
+		generic (
+			Domain : integer := 1;
+			Cin : real := 5.0e-15;
+			Cpd : real := 8.1e-15;
+			pleack: real := 0.81e-12;
+			Area : real := 1.7
+		);
+		port (
+           vcc : in real;
+           a,b,c : in  std_logic;
+           o : out  std_logic);
+    end component;       
+	signal Init, Check, v, CLKn : std_logic;
+	signal Q : std_logic_vector( 2 downto 0);
+	signal state : std_logic_vector( 2 downto 0);
+	
+	
+begin
+
+	negedge_clk: inv1 generic map (Domain => Domain) 
+				port map (Vcc => Vcc,
+							a => CLK,
+							o => CLKn);
+
+	counter_i : counter generic map (Domain => Domain) 
+						port map ( Vcc => Vcc,
+								Clk => CLK,
+								Init => Init,
+								Check => Check,
+								Q => Q);
+								
+	comparator_1: comp_3biti generic map (Domain => Domain) 
+							port map (Vcc => Vcc,
+									  Eqin => '1',
+									  a => Q,
+									  b => "100",
+									  eqout => v);
+									  
+	automat_i : automat  generic map (Domain => Domain) 
+						port map (Vcc => Vcc,
+								 CLK => CLKn, 
+								 CLR => CLR, 
+								 V => v,
+								 LSB => LSB,
+								 Start => Start,
+								 Q2 => state(2),
+								 Q1 => state(1),
+								 Q0 => state(0));
+								 
+	--LDM <= '1' when State = InitS else '0' ;							 
+	comparator_2: comp_3biti generic map (Domain => Domain) 
+							port map (Vcc => Vcc,
+									  Eqin => '1',
+									  a => state,
+									  b => "000",
+									  eqout => LDM);	
+									  
+	--LDHI<= '1' when State = addS else '0' ;
+	comparator_3: comp_3biti generic map (Domain => Domain) 
+							port map (Vcc => Vcc,
+									  Eqin => '1',
+									  a => state,
+									  b => "010",
+									  eqout => LDHI);	
+	--LDLO <= '1' when State = InitS else '0' ;
+	LDLO <= LDM;
+	Init <= LDM;
+    --SHHI <= '1' when State = ShiftS else '0' ;
+ 	comparator_4: comp_3biti generic map (Domain => Domain) 
+							port map (Vcc => Vcc,
+									  Eqin => '1',
+									  a => state,
+									  b => "011",
+									  eqout => SHHI);	   
+	--SHLO <= '1' when State = ShiftS else '0' ;
+	SHLO <= SHHI;
+	--CLRHI <= '0' when state = Inits else  '1';
+	invert: inv1 generic map (Domain => Domain) 
+				port map (Vcc => Vcc,
+							a => LDM,
+							o => CLRHI);
+	--Done <= '1' when State = DoneS else '0' ;
+	comparator_5: comp_3biti generic map (Domain => Domain) 
+							port map (Vcc => Vcc,
+									  Eqin => '1',
+									  a => state,
+									  b => "100",
+									  eqout => Done);	
+	--CG_EN <= '0' when State = Checks or State = Dones or state = adds else '1';
+	comparator_6: comp_3biti generic map (Domain => Domain) 
+							port map (Vcc => Vcc,
+									  Eqin => '1',
+									  a => state,
+									  b => "001",
+									  eqout => check);	
+	nor3_i : nor3 generic map (Domain => Domain) 
+							port map (Vcc => Vcc,
+									  a => check,
+									  b => done,
+									  c => LDHI,
+									  o => CG_EN);
+									 
+								 
+end architecture;
+
+	
+    
 
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
@@ -435,8 +653,7 @@ entity shift_cell is
        SH, LD : in std_logic;
        SR, SL : in std_logic;
        D : in std_logic;
-       Q : inout std_logic );
-end entity;
+       Q : inout std_logic );end entity;
 
 architecture structural of shift_cell is
 
@@ -644,7 +861,6 @@ use ieee.std_logic_1164.all;
    entity automat is
 	generic ( Domain: integer := 1);
 	port (
-         
            vcc : in real;
            CLK,CLR, V,LSB,Start : in  std_logic;
            Q2,Q1,Q0 : out  std_logic);
@@ -707,7 +923,7 @@ component inv1
     end component;
 
 
-	signal  Qbar2,Qbar1,Qbar0,Vbar : std_logic;
+	signal  Qbar2,Qbar1,Qbar0,Vbar, LSBn : std_logic;
 	signal  out_poarta,out_poarta_A,out_poarta_B,out_poarta_C,out_poarta_D: std_logic;
 	signal out_poarta_1,out_poarta_2,out_poarta_3,out_poarta_4,out_poarta_5,out_poarta_6,out_poarta_7,out_poarta_8,out_poarta_9,out_poarta_10,out_poarta_11,out_poarta_12,out_poarta_13,out_poarta_14: std_logic;
 
@@ -716,7 +932,7 @@ begin
 
 --porti pt D2
 --    poarta: or2 generic map (Domain => Domain) port map (a=>V,b=>Q1,o=>out_poarta,vcc => 3.3 );
-	D2: and4 generic map (Domain => Domain) port map (  a=> Qbar0,b=>Q1,c=>Q2, d=>V, o=>out_poarta_A, vcc => 3.3);
+	D2: and4 generic map (Domain => Domain) port map (  a=> Qbar2,b=>Q1,c=>Q0, d=>V, o=>out_poarta_A, vcc => 3.3);
 	bist2 : bistD generic map (Domain => Domain) port map (D=>out_poarta_A	, Q=>Q2 , Qbar=>Qbar2 , CLK => CLK, CLR => CLR, PRE => '1', vcc => 3.3 );
 	
 --porti pt D1
@@ -733,7 +949,8 @@ bist1 : bistD generic map (Domain => Domain) port map (D=>out_poarta_D	, Q=>Q1 ,
 poarta1: and2 generic map (Domain => Domain) port map (  a=> Start,b=>Qbar0,o=>out_poarta_1, vcc => 3.3);
 poarta2: and2 generic map (Domain => Domain) port map (  a=> Qbar1,b=>Qbar2,o=>out_poarta_2, vcc => 3.3);
 
-poarta3: and2 generic map (Domain => Domain) port map (  a=> LSB,b=>Q0,o=>out_poarta_3, vcc => 3.3);
+LSB_neg: inv1  generic map (Domain => Domain) port map (  a=> LSB,o=>LSBn, vcc => 3.3);
+poarta3: and2 generic map (Domain => Domain) port map (  a=> LSBn,b=>Q0,o=>out_poarta_3, vcc => 3.3);
 poarta4: and2 generic map (Domain => Domain) port map (  a=> Qbar1,b=>Qbar2,o=>out_poarta_4, vcc => 3.3);
 
 
@@ -898,6 +1115,7 @@ end architecture;
 
 
 -----------------------------------------------------------------------
+-----------------------------------------------------------------------
 
 library IEEE;
 use ieee.std_logic_1164.all; 
@@ -935,3 +1153,89 @@ begin
 	end process;
 	
 end architecture;
+
+
+-----------------------------------------------------------------------
+-----------------------------------------------------------------------
+
+
+library IEEE;
+use ieee.std_logic_1164.all; 
+
+entity test_controller is
+end entity;
+
+architecture test of test_controller is
+
+	component Controller_structural is
+	generic ( Domain: integer := 1);
+	port ( 
+		-- power pins
+		Vcc : in real;
+		-- end power pins
+		Start : in std_logic; 
+		CLK, CLR : in std_logic;
+		LSB : in std_logic; LDM : out std_logic;
+		LDHI : out std_logic;  LDLO: out std_logic;
+		SHHI : out std_logic; SHLO : out std_logic; 
+		Done, CLRHI, CG_EN : out std_logic);
+	end component;
+
+	component Controller is
+	generic ( Domain: integer := 1);
+	port ( 
+		Start : in std_logic; 
+		CLK : in std_logic;
+		LSB : in std_logic; LDM : out std_logic;
+		LDHI : out std_logic;  LDLO: out std_logic;
+		SHHI : out std_logic; SHLO : out std_logic; 
+		Done, CLRHI, CG_EN : out std_logic);
+	end component;
+	
+	signal Start, CLK, CLR, LSB :  std_logic;
+	signal LDM, LDHI, LDLO,SHHI, SHLO, Done, CLRHI, CG_EN : std_logic;
+	signal LDM2, LDHI2, LDLO2, SHHI2, SHLO2, Done2, CLRHI2, CG_EN2 : std_logic;
+
+begin
+
+	c1 : controller port map (CLK => CLK, Start => Start, LSB => LSB,
+							LDM		=> LDM	, 
+							LDHI	=> LDHI	, 
+							LDLO	=> LDLO	,
+							SHHI	=> SHHI	, 
+							SHLO	=> SHLO	, 
+							Done	=> Done	, 
+							CLRHI	=> CLRHI, 
+							CG_EN   => CG_EN  );
+	c2 : controller_structural generic map (Domain =>1 )
+					port map (Vcc => 3.3, 
+							CLK => CLK, CLR => CLR, Start => Start, LSB => LSB,
+							LDM		=> LDM2	, 
+							LDHI	=> LDHI2, 
+							LDLO	=> LDLO2,
+							SHHI	=> SHHI2, 
+							SHLO	=> SHLO2, 
+							Done	=> Done2, 
+							CLRHI	=> CLRHI2, 
+							CG_EN   => CG_EN2  );							
+							
+	generare_semnal_tact: process
+	begin
+		clk <= '0';
+		wait for 5 ns;
+		clk <= '1';
+		wait for 5 ns;
+	end process;
+	
+	
+	LSB <= '1', '0' after 105 ns, '1' after 135 ns;
+	START <= '0', '1' after 65 ns, '0' after 75 ns;
+	CLR <= '0', '1' after 1 ns;
+	
+	process begin
+		wait for 500 ns;
+		assert false report "end simulation" severity failure;
+	end process;
+
+end architecture;
+
