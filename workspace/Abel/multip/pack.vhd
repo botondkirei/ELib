@@ -26,6 +26,19 @@ component Adder4
 		Sum : out std_logic_Vector ( 3 downto 0));
 end component ;
 
+component adderN is  
+	generic ( Domain: integer := 1;
+			  N : integer := 4);
+	port(   
+		--pragma synthesis_off
+		vcc : in real;
+		--pragma synthesis_on
+		A,B : in std_logic_vector(N - 1 downto 0);  
+		Cin  : in std_logic;  
+		SUM : out std_logic_vector(N - 1 downto 0);  
+		Cout  : out std_logic);  
+end component adderN;  
+
 component Controller
 	generic ( Domain: integer := 1);
     port ( Start : in std_logic; CLK : in std_logic;
@@ -36,7 +49,9 @@ component Controller
 end component;
 
 component Controller_structural is
-	generic ( Domain: integer := 1);
+	generic ( Domain: integer := 1;
+			  N : integer := 4;
+			  log2N : integer := 3);
 	port ( 
 		-- power pins
 		Vcc : in real;
@@ -82,6 +97,21 @@ component Shift4 is
 		D : in std_logic_Vector(3 downto 0); 
 		Q : inout std_logic_Vector(3 downto 0));
 end component;
+
+component ShiftN is 
+	generic ( Domain: integer := 1;
+			  N : integer := 4);
+	port (
+          --pragma synthesis_off
+          vcc : in real;
+          --pragma synthesis_on
+          CLK : in std_logic; CLR : in std_logic;
+          LD : in std_logic; SH : in std_logic; 
+          DIR : in std_logic;
+	      Sin : in std_logic;
+          D : in std_logic_Vector(N - 1 downto 0); 
+          Q : out std_logic_Vector(N - 1 downto 0));
+end component ShiftN;
 
 component shift_cell is
 	generic ( Domain: integer := 1);
@@ -179,6 +209,58 @@ end architecture;
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+library ieee;  
+use ieee.std_logic_1164.all;  
+--use ieee.std_logic_arith.all;  
+--use ieee.std_logic_unsigned.all; 
+ 
+entity adderN is  
+	generic ( Domain: integer := 1;
+			  N : integer := 4);
+	port(   
+		--pragma synthesis_off
+		vcc : in real;
+		--pragma synthesis_on
+		A,B : in std_logic_vector(N - 1 downto 0);  
+		Cin  : in std_logic;  
+		SUM : out std_logic_vector(N - 1 downto 0);  
+		Cout  : out std_logic);  
+end adderN;  
+
+architecture structural of adderN is  
+
+	component full_adder is 
+		generic ( Domain: integer := 1);
+		port (
+	           --pragma synthesis_off
+			   vcc : in real;
+			   --pragma synthesis_on
+			   A,B,Cin : in  std_logic;
+			   Sum,Cout : out  std_logic);
+	end component;
+
+signal carry: std_logic_vector(N downto 0);
+
+begin 
+--U1: full_adder generic map (Domain => Domain) port map  ( a=> A(0), b=> B(0), Cin => '0', SUM => SUM(0), Cout=> C1, vcc => 3.3 );
+--U2: full_adder generic map (Domain => Domain) port map  ( a=> A(1), b=> B(1), Cin => C1, SUM => SUM(1), Cout=> C2, vcc => 3.3 );
+--U3: full_adder generic map (Domain => Domain) port map  ( a=> A(2), b=> B(2), Cin => C2, SUM => SUM(2), Cout=> C3, vcc => 3.3 );
+--U4: full_adder generic map (Domain => Domain) port map  ( a=> A(3), b=> B(3), Cin => C3, SUM => SUM(3), Cout=> C4, vcc => 3.3 );
+
+	Carry(0) <= '0';
+	
+	add : for I in 0 to N-1 generate
+		fa : full_adder generic map (Domain => Domain) 
+			port map  ( a=> A(I), b=> B(I), Cin => Carry(I), SUM => SUM(I), Cout=> Carry(I + 1), vcc => 3.3 );
+	end generate add;
+
+	Cout <= carry(N);
+
+end architecture;
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
 library IEEE;
 use IEEE.std_logic_1164.all;
 
@@ -257,9 +339,12 @@ end;
 
 library IEEE;
 use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
 
 entity Controller_structural is
-	generic ( Domain: integer := 1);
+	generic ( Domain: integer := 1;
+			N : integer := 4;
+			log2N : integer := 2);
 	port ( 
 		-- power pins
 		Vcc : in real;
@@ -274,23 +359,43 @@ end Controller_structural;
 
 architecture structural of Controller_structural is
 
-	component counter is
-	generic ( Domain: integer := 1);
+	--component counter is
+	--generic ( Domain: integer := 1);
+	--port (
+    --    vcc : in real;
+    --    CLK, init, check : in  std_logic; 
+    --    Q : out std_logic_vector(2 downto 0));
+    --end component;
+    
+    component CounterN is
+	generic ( Domain: integer := 1;
+		  N: integer := 3);
 	port (
         vcc : in real;
         CLK, init, check : in  std_logic; 
-        Q : out std_logic_vector(2 downto 0));
-    end component;
-    
-    component comp_3biti is
-	generic (Domain : integer := 1);
+        Q : out std_logic_vector(N - 1 downto 0));
+	end component;
+	
+	component comp_Nbiti is
+	generic (Domain : integer := 1;
+			N : integer := 3);
 	port (
 		vcc : real;
 		eqin: in std_logic;
-		a, b: in std_logic_vector(2 downto 0);
+		a, b: in std_logic_vector(N - 1 downto 0);
 		eqout : out std_logic
 		);
 	end component;
+    
+    --component comp_3biti is
+	--generic (Domain : integer := 1);
+	--port (
+	--	vcc : real;
+	--	eqin: in std_logic;
+	--	a, b: in std_logic_vector(2 downto 0);
+	--	eqout : out std_logic
+	--	);
+	--end component;
 	
 	component automat is
 	generic ( Domain: integer := 1);
@@ -328,9 +433,10 @@ architecture structural of Controller_structural is
            o : out  std_logic);
     end component;       
 	signal Init, Check, v, CLKn : std_logic;
-	signal Q : std_logic_vector( 2 downto 0);
+	signal Q : std_logic_vector(log2N downto 0);
 	signal state : std_logic_vector( 2 downto 0);
-	
+	constant limit : std_logic_vector(log2N downto 0) := std_logic_vector(to_unsigned(N, log2N + 1));
+	--constant limit : std_logic_vector(log2N downto 0) := "100";
 	
 begin
 
@@ -339,18 +445,18 @@ begin
 							a => CLK,
 							o => CLKn);
 
-	counter_i : counter generic map (Domain => Domain) 
+	counter_i : counterN generic map (Domain => Domain, N => log2N + 1) 
 						port map ( Vcc => Vcc,
 								Clk => CLK,
 								Init => Init,
 								Check => Check,
 								Q => Q);
 								
-	comparator_1: comp_3biti generic map (Domain => Domain) 
+	comparator_1: comp_Nbiti generic map (Domain => Domain, N=>log2N + 1) 
 							port map (Vcc => Vcc,
 									  Eqin => '1',
 									  a => Q,
-									  b => "100",
+									  b => limit,
 									  eqout => v);
 									  
 	automat_i : automat  generic map (Domain => Domain) 
@@ -365,7 +471,7 @@ begin
 								 Q0 => state(0));
 								 
 	--LDM <= '1' when State = InitS else '0' ;							 
-	comparator_2: comp_3biti generic map (Domain => Domain) 
+	comparator_2: comp_Nbiti generic map (Domain => Domain) 
 							port map (Vcc => Vcc,
 									  Eqin => '1',
 									  a => state,
@@ -373,7 +479,7 @@ begin
 									  eqout => LDM);	
 									  
 	--LDHI<= '1' when State = addS else '0' ;
-	comparator_3: comp_3biti generic map (Domain => Domain) 
+	comparator_3: comp_Nbiti generic map (Domain => Domain) 
 							port map (Vcc => Vcc,
 									  Eqin => '1',
 									  a => state,
@@ -383,7 +489,7 @@ begin
 	LDLO <= LDM;
 	Init <= LDM;
     --SHHI <= '1' when State = ShiftS else '0' ;
- 	comparator_4: comp_3biti generic map (Domain => Domain) 
+ 	comparator_4: comp_Nbiti generic map (Domain => Domain) 
 							port map (Vcc => Vcc,
 									  Eqin => '1',
 									  a => state,
@@ -397,14 +503,14 @@ begin
 							a => LDM,
 							o => CLRHI);
 	--Done <= '1' when State = DoneS else '0' ;
-	comparator_5: comp_3biti generic map (Domain => Domain) 
+	comparator_5: comp_Nbiti generic map (Domain => Domain) 
 							port map (Vcc => Vcc,
 									  Eqin => '1',
 									  a => state,
 									  b => "100",
 									  eqout => Done);	
 	--CG_EN <= '0' when State = Checks or State = Dones or state = adds else '1';
-	comparator_6: comp_3biti generic map (Domain => Domain) 
+	comparator_6: comp_Nbiti generic map (Domain => Domain) 
 							port map (Vcc => Vcc,
 									  Eqin => '1',
 									  a => state,
@@ -639,6 +745,78 @@ end architecture;
 --------------------------------------------------------------------
 --------------------------------------------------------------------
 
+library ieee;  
+use ieee.std_logic_1164.all;  
+--use ieee.std_logic_arith.all;  
+--use ieee.std_logic_unsigned.all; 
+
+entity ShiftN is 
+	generic ( Domain: integer := 1;
+			  N : integer := 4);
+	port (
+          --pragma synthesis_off
+          vcc : in real;
+          --pragma synthesis_on
+          CLK : in std_logic; CLR : in std_logic;
+          LD : in std_logic; SH : in std_logic; 
+          DIR : in std_logic;
+	      Sin : in std_logic;
+          D : in std_logic_Vector(N - 1 downto 0); 
+          Q : out std_logic_Vector(N - 1 downto 0));
+end entity ShiftN;
+
+architecture Behavior of ShiftN is
+
+
+	component inv1              
+	generic ( Domain: integer := 1);
+	port (
+		  --pragma synthesis_off
+		  vcc : in real;
+		 --pragma synthesis_on
+			a: in  std_logic;      
+		  o: out std_logic);
+	end component ; 
+	
+	component shift_cell 
+	generic ( Domain: integer := 1);
+	port ( 
+		   --pragma synthesis_off
+		   vcc : in real;
+		   --pragma synthesis_on
+		   CLK, CLR : in std_logic;
+		   Dir, DirN : in std_logic;
+		   SH, LD : in std_logic;
+		   SR, SL : in std_logic;
+		   D : in std_logic;
+		   Q : inout std_logic);
+	end component;
+
+	signal Qint: std_logic_vector(N  downto -1);
+	signal DirN : std_logic;
+
+begin
+
+U1 : inv1 generic map (Domain => Domain) port map (a => DIR, o => DirN, vcc => 3.3);
+--U2 : shift_cell generic map (Domain => Domain) port map ( CLK => CLK, CLR => CLR, Dir => DIR, DirN => DirN, SH => SH, LD => LD, SR => Sin, SL => Q(2), D=> D(3), Q=>Q(3), vcc => 3.3);
+--U3 : shift_cell generic map (Domain => Domain) port map ( CLK => CLK, CLR => CLR, Dir => DIR, DirN => DirN, SH => SH, LD => LD, SR => Q(3), SL => Q(1), D=> D(2), Q=>Q(2), vcc => 3.3);
+--U4 : shift_cell generic map (Domain => Domain) port map ( CLK => CLK, CLR => CLR, Dir => DIR, DirN => DirN, SH => SH, LD => LD, SR => Q(2), SL =>  Q(0), D=> D(1), Q=>Q(1), vcc => 3.3);
+--U5 : shift_cell generic map (Domain => Domain) port map ( CLK => CLK, CLR => CLR, Dir => DIR, DirN => DirN, SH => SH, LD => LD, SR => Q(1), SL => Sin, D=> D(0), Q=>Q(0), vcc => 3.3);
+
+	shift : for I in 0 to N-1 generate
+		sh_cell : shift_cell generic map (Domain => Domain) 
+			port map ( CLK => CLK, CLR => CLR, Dir => DIR, DirN => DirN, SH => SH, LD => LD, SR => Qint(I + 1), SL => Qint(I - 1), D => D(I), Q=>Qint(I), vcc => 3.3);
+	end generate shift;
+	
+	Qint(N) <= Sin;
+	Qint(-1) <= Sin;
+	Q <= Qint(N-1 downto 0);
+
+end architecture;
+
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+
 library IEEE;
 use ieee.std_logic_1164.all;  
 
@@ -811,6 +989,83 @@ end architecture;
 --------------------------------------------------------------------
 
 
+library IEEE;
+use ieee.std_logic_1164.all; 
+
+entity CounterN is
+generic ( Domain: integer := 1;
+		  N: integer := 3);
+	port (
+        vcc : in real;
+        CLK, init, check : in  std_logic; 
+        Q : out std_logic_vector(N - 1 downto 0));
+end entity CounterN;
+
+architecture structural of CounterN is
+
+	
+	component inv1              
+	generic ( Domain: integer := 1);
+	port (
+		  vcc : in real;
+		  a : in  std_logic;      
+		  o: out std_logic);
+	end component ;
+	
+	component or2              
+	generic ( Domain: integer := 1);
+	port (
+		  vcc : in real;
+		  a, b : in  std_logic;      
+		  o: out std_logic);
+	end component ;
+	
+	component and3              
+	generic ( Domain: integer := 1);
+	port (
+		  vcc : in real;
+		  a, b, c : in  std_logic;      
+		  o: out std_logic);
+	end component ;
+
+	
+	component bistD is
+		generic ( Domain: integer := 1);
+		port (
+        --pragma synthesis_off
+        vcc : in real;
+        --pragma synthesis_on
+        PRE, CLR, CLK, D : in  std_logic; 
+        Q, Qbar: out std_logic);
+    end component;
+	
+	signal C, Qint: std_logic_vector(N-1 downto 0);
+	signal initn, checkn, d0, c0n, net1, net2 : std_logic;
+	
+begin
+	
+	bist0 : bistD generic map (Domain => Domain) port map (D=>d0	, Q=> Q(0), Qbar=> C(0), CLK => CLK, CLR => initn, PRE => '1', vcc => 3.3 );
+
+	ffd : for I in 1 to N-1 generate
+		bist : bistD generic map (Domain => Domain) port map
+			(D => C(I), Q => Q(I), Qbar => C(I), CLK => C(I-1), CLR => initn, PRE => '1', vcc => 3.3);
+	end generate ffd;
+	
+	poarta1: or2 generic map (Domain => Domain) port map (a => net1, b => net2, o => d0, vcc => 3.3);
+	poarta2: and3 generic map (Domain => Domain) port map (a => c0n, b => initn, c => checkn, o =>  net1, vcc => 3.3 );
+	poarta3: and3 generic map (Domain => Domain) port map (a => c(0), b => initn, c => check, o =>  net2, vcc => 3.3 );
+	
+	inversor1: inv1 generic map (Domain => Domain) port map (a => init, o => initn, vcc => 3.3 );
+	inversor2: inv1 generic map (Domain => Domain) port map (a => check, o => checkn, vcc => 3.3 );
+	inversor3: inv1 generic map (Domain => Domain) port map (a => C(0), o => c0n, vcc => 3.3 );
+		
+end architecture;
+
+
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+
+
 
 library IEEE;
 use ieee.std_logic_1164.all; 
@@ -828,14 +1083,26 @@ architecture Test of Test_Counter is
         Q : out std_logic_vector(2 downto 0));
 	
     end component;
+    
+    component CounterN  is
+	generic ( Domain: integer := 1;
+			N: integer := 3);
+	port (
+        vcc : in real;
+        CLK, init, check : in  std_logic; 
+        Q : out std_logic_vector(N - 1 downto 0));
+	
+    end component;
         
 	signal clk, init, check : std_logic;
 	
 	signal count : std_logic_vector(2 downto 0);
+	signal count2 : std_logic_vector(2 downto 0);
 
 begin
 
 	instanta_counter : counter port map (vcc => 3.3,clk=>clk,init=>init,check=>check,Q=>count);
+	instanta_counter2 : counterN port map (vcc => 3.3,clk=>clk,init=>init,check=>check,Q=>count2);
 	
 	generare_semnal_tact: process
 	begin
@@ -1077,6 +1344,7 @@ end architecture;
 
 
 -----------------------------------------------------------------------
+-----------------------------------------------------------------------
 
 library IEEE;
 use ieee.std_logic_1164.all; 
@@ -1112,6 +1380,52 @@ begin
 		
 end architecture;
 
+-----------------------------------------------------------------------
+-----------------------------------------------------------------------
+
+library IEEE;
+use ieee.std_logic_1164.all; 
+
+entity comp_Nbiti is
+	generic (Domain : integer := 1;
+			N : integer := 3);
+	port (
+		vcc : real;
+		eqin: in std_logic;
+		a, b: in std_logic_vector(N - 1 downto 0);
+		eqout : out std_logic
+		);
+end entity;
+
+architecture structural of comp_Nbiti is
+
+	component comparator_1bit is
+	generic (Domain : integer := 1);
+	port (
+		vcc : real; 
+		eqin, a, b: in std_logic;
+		eqout : out std_logic
+		);
+	end component;
+	
+	signal nets : std_logic_vector(N downto 0);
+
+begin
+
+	--comp1 : comparator_1bit generic map (Domain => Domain) port map (eqin =>eqin, a =>a(2), b => b(2), eqout =>net1, vcc => vcc); 
+	--comp2 : comparator_1bit generic map (Domain => Domain) port map (eqin =>net1, a =>a(1), b => b(1), eqout =>net2, vcc => vcc); 
+	--comp3 : comparator_1bit generic map (Domain => Domain) port map (eqin =>net2, a =>a(0), b => b(0), eqout =>eqout, vcc => vcc); 
+	comparators : for I in 0 to N-1 generate
+		bist : comparator_1bit generic map (Domain => Domain) 
+				port map (eqin => nets(I), a =>a(I), b => b(I), eqout =>nets(I+1), vcc => vcc); 
+	end generate comparators;
+	
+	nets(0) <= eqin;
+	eqout <= nets(N);
+		
+end architecture;
+
+
 
 
 -----------------------------------------------------------------------
@@ -1135,12 +1449,24 @@ architecture test of test_comp_3biti is
 		);
 	end component;
 	
-	signal eqin, eqout : std_logic;
+	component comp_Nbiti is
+	generic (Domain : integer := 1;
+			N : integer := 3);
+	port (
+		vcc : real;
+		eqin: in std_logic;
+		a, b: in std_logic_vector(N - 1 downto 0);
+		eqout : out std_logic
+		);
+	end component;
+
+	signal eqin, eqout, eqout2: std_logic;
 	signal a, b : std_logic_vector(2 downto 0);
 	
 begin
 
 	instanta_comp_3biti : comp_3biti port map ( vcc => 3.3, eqin=>eqin, a=>a , b=>b, eqout=>eqout);
+	instanta_comp_Nbiti : comp_Nbiti port map ( vcc => 3.3, eqin=>eqin, a=>a , b=>b, eqout=>eqout2);
 	
 	eqin <= '1', '1' after 40 ns, '1' after 80 ns;
 	a <= "000", "101" after 10 ns, "110" after 20 ns;
@@ -1168,7 +1494,9 @@ end entity;
 architecture test of test_controller is
 
 	component Controller_structural is
-	generic ( Domain: integer := 1);
+	generic ( Domain: integer := 1;
+			 N : integer := 4;
+			 log2N : integer := 2);
 	port ( 
 		-- power pins
 		Vcc : in real;
