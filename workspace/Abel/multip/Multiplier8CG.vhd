@@ -18,7 +18,8 @@ end Mult8CG;
 
 architecture InterativeAdd of Mult8CG is
  
-	signal M, LO, HI: std_logic_Vector(3 downto 0);
+	signal M, LO: std_logic_Vector(3 downto 0);
+	signal D, HI: std_logic_Vector(4 downto 0);
 	signal ADDout : std_logic_Vector(3 downto 0);
 	signal LDM, LDHI, LDLO, SHHI, SHLO, CLRHI: std_logic := '0' ;
 	signal High : std_logic := '1' ;
@@ -31,22 +32,26 @@ begin
 
 CG: clock_gate generic map (Domain => Domain) port map (Enable => CG_EN , CLKin => CLK, CLKout => CLKG, vcc => 3.3 );
 
-Result <= Hi & Lo;
+Result <= Hi(3 downto 0) & Lo;
 
 SR_M: Shift4 generic map (Domain => Domain) port map
       ( CLK => CLKG, CLR => RESET, LD => LDM, SH => Low,
-        DIR => Low, D => A, Q => M, Sin => '0' , vcc => 3.3);
+        DIR => Low, D => A, Q => M, Sin => '0' , vcc => 3.3 );
 
 SR_LOW:Shift4 generic map (Domain => Domain) port map
       ( CLK => CLKG, CLR => RESET, LD => LDLO, SH => SHLO,
        DIR => Low, D => B, Q => LO, Sin => Hi(0),vcc => 3.3 ); 
 
 ALU: Adder4 generic map (Domain => Domain) port map
-     ( A => M, B => Hi, Cin => Low, Cout => OFL, Sum => ADDout, vcc => 3.3);
+--    ( A => M, B => Hi, Cin => Low, Cout => OFL, Sum => ADDout, vcc => 3.3);
+     ( A => M, B => Hi(3 downto 0), Cin => Low, Cout => OFL, Sum => ADDout, vcc => 3.3);
 
-SR_High: Shift4 generic map (Domain => Domain) port map
+--SR_High: Shift4 generic map (Domain => Domain) port map
+--      ( CLK => CLK, CLR => CLRHI, LD => LDHI, SH => SHHI,
+--       DIR => Low, D => ADDout, Q => HI, Sin => OFL, vcc => 3.3); 
+SR_High: ShiftN generic map (Domain => Domain, N => 5) port map
       ( CLK => CLK, CLR => CLRHI, LD => LDHI, SH => SHHI,
-       DIR => Low, D => ADDout, Q => HI, Sin => OFL, vcc => 3.3); 
+       DIR => Low, D(4) => OFL, D(3 downto 0) => ADDout, Q => HI, Sin => '0', vcc => 3.3); 
 
 --FSM: Controller generic map (Domain => Domain) port map
 --( Start, CLK, LO(0), LDM, LDHI, LDLO, SHHI, SHLO, Done, CLRHI, CG_EN);

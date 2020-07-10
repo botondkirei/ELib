@@ -10,8 +10,8 @@ use work.components.all;
 use work.pmonitor.all; 
 
 entity Test_Mult2N is 
-	generic ( N : integer := 8;
-			  log2N : integer := 3);
+	generic ( N : integer := 4;
+			  log2N : integer := 2);
 end entity;
 
 architecture Driver of Test_Mult2N is
@@ -84,6 +84,8 @@ begin
 			return slv;
 		end function; 
 		
+		variable op_a, op_b, res : integer;
+		
 	begin
 	
 		wait until RESET = '1';
@@ -93,7 +95,11 @@ begin
 			wait until CLK'Event and CLK='1';
 			Start <='1', '0' after 10 ns;
 			wait until Done1 ='1';
-			assert (Result1 = Result2) report "product incorrect" severity error;
+			assert (Result1 = Result2) report "implementation mismathc " severity error;
+			op_a := to_integer(unsigned(A));
+			op_b := to_integer(unsigned(B));
+			res  := to_integer(unsigned(Result1));
+			assert (op_a * op_b = res) report "product incorrect at: " & time'image(now) severity error;
 			wait until CLK'Event and CLK = '1';
 		end loop;
 	end process;
@@ -102,7 +108,7 @@ begin
 	begin
 		PM.RESETPOWER(1);
 		PM.RESETPOWER(2);	
-		wait for 10000 ns;
+		wait for 30000 ns;
 		AM.REPORTAREA(1);
 		AM.REPORTAREA(2);
 		PM.REPORTPOWER(1);

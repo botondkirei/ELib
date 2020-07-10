@@ -1,8 +1,9 @@
 
 library IEEE;
 use IEEE.std_logic_1164.all;
-use ieee.std_logic_arith.all;  
-use ieee.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
+--use ieee.std_logic_arith.all;  
+--use ieee.std_logic_unsigned.all;
 
 use work.components.all;
 use work.pmonitor.all; 
@@ -60,21 +61,26 @@ begin
 
 	Reset <= '0', '1' after 10 ns;
 	Stimulus: process
+	variable op_a, op_b, res : integer;
 	begin
 		--report "start simulation" severity note;
 		PM.RESETPOWER(1);
 		PM.RESETPOWER(2);
 		
 		wait until RESET = '1';
-		for i in 2 to 5 loop
-			for j in 4 to 7 loop
+		for i in 0 to 15 loop
+			for j in 0 to 15 loop
 				--report "inner loop" severity note;
-				A <= Conv_std_logic_vector (i, A'Length );
-				B <= Conv_std_logic_vector (j, B'Length ); 
+				A <= std_logic_vector(to_unsigned(i, A'Length ));
+				B <= std_logic_vector(to_unsigned(j, B'Length )); 
 				wait until CLK'Event and CLK='1';
 				Start <='1', '0' after 10 ns;
 				wait until Done1 ='1';
-				assert (Result1 = Result2) report "product incorrect" severity error;
+				assert (Result1 = Result2) report "Product mismatch" severity error;
+				op_a := to_integer(unsigned(A));
+				op_b := to_integer(unsigned(B));
+				res := to_integer(unsigned(result1));
+				assert (op_a * op_b = res) report "Product incorrect" severity error;
 				wait until CLK'Event and CLK = '1';
 			end loop;
 		end loop;
