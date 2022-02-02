@@ -1,4 +1,4 @@
-# Energy/Power/Area Aware Modeling (PEAAM)
+# Energy/Power/Area Aware Modeling (EPAAM)
 
 Logic Design is facing new challenges with the continuous shrinking of CMOS transistor sizes due to the development of integrated circuit (IC) manufacturing technologies. Traditionally the main source of power dissipation in CMOS digital circuits is considered to be the capacitive switching. Nowadays, the current leakage becomes a prelevant power dissipation source. In this context, a power/energy/area estimated is required of the design in an early design stage (ie. RTL description) of digital systems. A such estimate of a new design can be provided by applying the Energy/Power/Area Aware Modeling concept. Power Estimation Library (PElib), later Power and Aria Estimation Library (PAElib) consist of energy/power/area aware components that can be used in strctural descriptions and provides power and area estimation in an early design phase.  PAElib is written in VHDL, thus estimations are obtained in a VHDL simulator. Note that, the power/area estimation concept is suitable to be "translated" in any HDL language, Verilog or SystemC. 
 
